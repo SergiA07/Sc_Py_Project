@@ -1,0 +1,13 @@
+{
+    client: {
+        host: raspberrypi.local
+        port: 5555
+        name: test
+        address: /test
+    },
+    server: {
+        host: 0.0.0.0
+        port: 5556
+        address: /test/*
+    }
+}

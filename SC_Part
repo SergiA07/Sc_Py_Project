@@ -1,8 +1,0 @@
-NetAddr.localAddr
-
-
-OSCdef("PythonProva", {
-	arg msg;
-	msg.postln;
-}, '/control1'
-).add;
