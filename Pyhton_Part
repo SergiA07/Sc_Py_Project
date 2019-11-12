@@ -1,0 +1,36 @@
+
+print("hola")
+
+from osc4py3.as_eventloop import *
+from osc4py3 import oscbuildparse
+
+osc_startup()
+
+osc_udp_client("127.0.0.1", 57120, "SCClient")
+
+# msg = oscbuildparse.OSCMessage("/test/me", ",sif", ["text", 672, 8.871])
+# osc_send(msg, "SCClient")
+
+# Build a message with autodetection of data types, and send it.
+msg = oscbuildparse.OSCMessage("/control1", None, ["text", 672, 8.871])
+osc_send(msg, "SCClient")
+osc_process()
+# Buils a complete bundle, and postpone its executions by 10 sec.
+# exectime = time.time() + 10   # execute in 10 seconds
+# msg1 = oscbuildparse.OSCMessage("/sound/levels", None, [1, 5, 3])
+# msg2 = oscbuildparse.OSCMessage("/sound/bits", None, [32])
+# msg3 = oscbuildparse.OSCMessage("/sound/freq", None, [42000])
+ #bun = oscbuildparse.OSCBundle(oscbuildparse.unixtime2timetag(exectime),
+#                    [msg1, msg2, msg3])
+# osc_send(bun, "SCClient")
+
+# Periodically call osc4py3 processing method in your event loop.
+#finished = False
+#while not finished:
+    # You can send OSC messages from your event loop too…
+    # …
+#    osc_process()
+    # …
+
+# Properly close the system.
+# osc_terminate()
