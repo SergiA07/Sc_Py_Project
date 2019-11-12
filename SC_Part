@@ -6,5 +6,3 @@ OSCdef("PythonProva", {
 	msg.postln;
 }, '/control1'
 ).add;
-
--hjg
