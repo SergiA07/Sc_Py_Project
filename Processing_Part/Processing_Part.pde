@@ -12,8 +12,8 @@ int blue=0;
 void setup() {
   size(400, 400);
   frameRate(25);
-  oscP5 = new OscP5(this, 12000);
-  myRemoteLocation = new NetAddress("127.0.0.1", 12000);
+  oscP5 = new OscP5(this, 13000);
+  myRemoteLocation = new NetAddress("127.0.0.1", 13000);
 }
 
 void draw() {
@@ -21,6 +21,7 @@ void draw() {
 }
 
 void oscEvent(OscMessage theOscMessage) {
+  println(theOscMessage);
   red = theOscMessage.get(0).intValue();
   green = theOscMessage.get(1).intValue();
   blue = theOscMessage.get(2).intValue();
