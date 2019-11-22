@@ -1,6 +1,6 @@
 
 
-NetAddr.localAddr
+ NetAddr.localAddr
 
 ~sc_address = NetAddr("127.0.0.1", 57120);
 ~processing_address = NetAddr("127.0.0.1", 13000);
