@@ -1,13 +1,14 @@
 {
-    client: {
-        host: raspberrypi.local
-        port: 5555
-        name: test
-        address: /test
+    "supercollider": {
+        "ip": "127.0.0.1",
+        "port": 57122
     },
-    server: {
-        host: 0.0.0.0
-        port: 5556
-        address: /test/*
+    "python": {
+        "ip": "127.0.0.1",
+        "port": 12000
+    },
+    "processing": {
+        "ip": "127.0.0.1",
+        "port": 13000
     }
 }

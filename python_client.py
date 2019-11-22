@@ -1,26 +1,25 @@
 """Small example OSC client
 
-This program sends 10 random values between 0.0 and 1.0 to the /filter address,
+This program sends 10 random values between 0.0 and 1.0 to the /control1 address,
 waiting for 1 seconds between each value.
 """
 import argparse
 import random
 import time
+import json
 
 from pythonosc import udp_client
 
+OSC_CONFIG_FILEPATH = './osc_config.json'
 
 if __name__ == "__main__":
-  parser = argparse.ArgumentParser()
-  parser.add_argument("--ip", default="127.0.0.1",
-      help="The ip of the OSC server")
-  parser.add_argument("--port", type=int, default=5005,
-      help="The port the OSC server is listening on")
-  args = parser.parse_args()
+    with open(OSC_CONFIG_FILEPATH) as json_file:
+        osc_config = json.load(json_file)
 
-  client = udp_client.SimpleUDPClient(args.ip, args.port)
+    sc_client = udp_client.SimpleUDPClient(
+        osc_config["supercollider"]["ip"],
+        osc_config["supercollider"]["port"])
 
-  for x in range(1000):
-
-    client.send_message("/control1", random.random())
-    time.sleep(0.01)
+    for x in range(100):
+        sc_client.send_message("/control1", random.random())
+        time.sleep(0.01)
