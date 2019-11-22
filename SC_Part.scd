@@ -1,12 +1,12 @@
+s.boot
+NetAddr.localAddr
 
-
- NetAddr.localAddr
-
-~sc_address = NetAddr("127.0.0.1", 57120);
-~processing_address = NetAddr("127.0.0.1", 13000);
-~python_address = NetAddr("127.0.0.1", 12000);
-
-
+(
+	~osc_config = "/Users/lluissuros/code/Sc_Py-Sergi-Lluis/osc_config.json".parseYAMLFile;
+	~sc_address = NetAddr(~osc_config["supercollider"]["ip"], ~osc_config["supercollider"]["port"]);
+	~processing_address = NetAddr(~osc_config["processing"]["ip"], ~osc_config["processing"]["port"]);
+	~python_address = NetAddr(~osc_config["python"]["ip"], ~osc_config["python"]["port"]);
+)
 
 SynthDef(\sin, {
 	arg freq;
@@ -16,8 +16,6 @@ SynthDef(\sin, {
 }).add;
 
 ~so1 = Synth(\sin, [\freq, 400]);
-
-
 
 OSCdef(\sc_listener, {
 	arg msg;
@@ -29,25 +27,13 @@ OSCdef(\sc_listener, {
 
 
 
-
-/// Enviar a Python
-
-~python_address.sendMsg("/print", 123456789, 23) //OK
-~python_address.sendMsg("/print", [123456789,11,2]) // ?
-
-
 (
+	//test python server
 	Routine({
-		(0..10000).do({
-
-			arg i;
-
+		(0..1000).do({ arg i;
 			~python_address.sendMsg("/filter", i);
-
 			~python_address.sendMsg("/volume", i + 100);
-
 			~python_address.sendMsg("/logvolume", i + 1000);
-
 			0.001.wait;
 		});
 	}).play
