@@ -30,25 +30,37 @@ def is_valid_sound(file):
     if(not isValidSound): print('invalid sound format for ', file, 'only wav or aiff')
     return isValidSound
 
-def track_info_creator(track_name, folder_path = CORPUS_PATH):
-    """Create a dictionary with the metadata that we want to store for each sound clip."""
+
+
+def track_info_creator(track_name, folder_path):
+    # Create a dictionary with the metadata that we want to store for each sound clip."""
+    track_name = track_name.split("/")
+    track_name = track_name[-1]
+
     track_info = {}
-    track_info['track_id'] = track_name # name will be id
-    track_info['absolute_path'] = track_name
+    track_info["track_id"] = track_name
+    track_info["absolute_path"] = join(folder_path, track_name)
     return track_info
+
+
+
+
 
 
 def tracks_info(sound_files_path):
 
     # Make a Pandas DataFrame with the metadata of our sound collection and save it
     tracks_paths = [join(sound_files_path, track) for track in listdir(sound_files_path)]
+
+
     valid_tracks = [f for f in tracks_paths if is_valid_sound(f)]
+
 
     # df =  pd.DataFrame([track_info_creator(tr, sound_files_path) for tr in valid_tracks])
     # df.sort_values('track_id', inplace=True) #sort alphabetically
     # return df, valid_tracks
 
-    tracks_info = [track_info_creator(tr, sound_files_path) for tr in valid_tracks]
+    tracks_info = [track_info_creator(track, sound_files_path) for track in valid_tracks]
     return tracks_info, valid_tracks
 
 
@@ -58,11 +70,12 @@ def mfcc_analize(track_path, fft_size=2048, hop_size=512, n_features=20):
     return mfcc_data
 
 
-tracks = tracks_info(CORPUS_PATH)
+tracks = tracks_info(CORPUS_PATH)[0] #aqui estava el problema. Tens que dir-li que de les dos infos que return tracks_info nomes vols la 1.
 
-[print(track) for track in tracks]
+print(tracks)
 
-# resultat = [mfcc_analize(track.absolute_path) for track in tracks]
+print()
 
+resultat = [mfcc_analize(track["absolute_path"]) for track in tracks]
 
-#print(resultat.shape)
+print(resultat)
