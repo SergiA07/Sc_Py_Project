@@ -2,7 +2,8 @@ s.boot
 NetAddr.localAddr
 
 (
-	~osc_config = "/Users/lluissuros/code/Sc_Py-Sergi-Lluis/osc_config.json".parseYAMLFile;
+	~currentPath = PathName(thisProcess.nowExecutingPath).parentPath;
+	~osc_config = (~currentPath ++ "osc_config.json").parseYAMLFile;
 	~sc_address = NetAddr(~osc_config["supercollider"]["ip"], ~osc_config["supercollider"]["port"]);
 	~processing_address = NetAddr(~osc_config["processing"]["ip"], ~osc_config["processing"]["port"]);
 	~python_address = NetAddr(~osc_config["python"]["ip"], ~osc_config["python"]["port"]);
@@ -19,9 +20,9 @@ SynthDef(\sin, {
 
 OSCdef(\sc_listener, {
 	arg msg;
-	msg.postln;
-    ~so1.set(\freq,msg[1].linlin(0,1,200,1000));
-	~processing_address.sendMsg("/", msg[1].linlin(0,1, 0, 255).asInteger, 100, 100);
+	msg[1].postln;
+    //~so1.set(\freq,msg[1].linlin(0,1,200,1000));
+	//~processing_address.sendMsg("/", msg[1].linlin(0,1, 0, 255).asInteger, 100, 100);
 }, '/control1'
 ).add;
 

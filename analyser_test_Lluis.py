@@ -57,5 +57,5 @@ TODOS:
  * Save results of MFFC and other anaylisis(centroid etc) in json or numpy
  * Super-exact function to retrieve correct frame given track and position
  * Think about id: is it better fullpath (harder to share) or filename(harder to access)
- * Think a nice pattern to analyse different features. 
+ * Think a nice pattern to analyse different features.
 '''

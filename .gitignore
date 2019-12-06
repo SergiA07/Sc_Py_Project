@@ -3,3 +3,5 @@ proves.py
 sounds/*
 
 .vscode
+
+osc_config.json
