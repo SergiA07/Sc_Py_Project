@@ -1,2 +1,5 @@
 proves.py
-/sounds
+
+sounds/*
+
+.vscode
