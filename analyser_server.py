@@ -25,7 +25,7 @@ if __name__ == "__main__":
         osc_config["supercollider"]["ip"],
         osc_config["supercollider"]["port"])
 
-    Analisis = Analyser()
+    analisis = Analyser(2, 3)
 
     #get_closest('centroid', 0.3546)
     #envia()

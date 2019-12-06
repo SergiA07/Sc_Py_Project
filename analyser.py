@@ -18,17 +18,22 @@ from sklearn.neighbors import NearestNeighbors
 
 # ------------- #
 
+CORPUS_FOLDER_PATH = "/Users/Sergi/Documents/SuperCollider/Proyectos/Lluis/Python_SC_Pde/sounds/"
+
 
 class Analyser:
 
 
-    CORPUS_FOLDER_PATH = join(getcwd(),  "sounds")
+    #CORPUS_FOLDER_PATH = join(getcwd(),  "sounds")
+
 
     def __init__(self, param1, param2):
         #constructor
         self.param1 = param1
+        self.param2 = param2
         self.corpus_path = CORPUS_FOLDER_PATH
         self.dict = self.creator()
+
 
 
     def is_valid_sound(file):
@@ -58,9 +63,11 @@ class Analyser:
 
     def creator(self):
 
+
         features_dicc = {}
         features_dicc["centroid"] = {}
         features_dicc["flatness"] = {}
+
 
 
         centroid_config = {
@@ -69,11 +76,14 @@ class Analyser:
         }
 
         flatness_config = {
-            "fft_size": 2048,
-            "hop_size": 512
+        "fft_size": 2048,
+                "hop_size": 512
         }
 
+
+
         valid_tracks = get_valid_tracks(self.corpus_path)
+
 
 
         for track_path in valid_tracks:
