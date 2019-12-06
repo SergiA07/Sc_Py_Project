@@ -1,7 +1,7 @@
 
 
 
-from os import listdir
+from os import listdir, getcwd
 from os.path import isfile, join
 
 import codecs
@@ -55,10 +55,15 @@ def creator(CORPUS_FOLDER_PATH):
 
     features_dicc = {}
     features_dicc["centroid"] = {}
-    features_dicc["mfcc"] = {}
+    features_dicc["flatness"] = {}
 
 
     centroid_config = {
+        "fft_size": 2048,
+        "hop_size": 512
+    }
+
+    flatness_config = {
         "fft_size": 2048,
         "hop_size": 512
     }
@@ -77,6 +82,13 @@ def creator(CORPUS_FOLDER_PATH):
             get_frames_time(audio, sr, centroid_config["fft_size"], centroid_config["hop_size"])
         )
 
+        add_to_dict(
+            features_dicc["flatness"],
+            track_path,
+            flatness_analize(audio, flatness_config["fft_size"], flatness_config["hop_size"]),
+            get_frames_time(audio, sr, flatness_config["fft_size"], flatness_config["hop_size"])
+        )
+
     return features_dicc
 
 
@@ -84,6 +96,11 @@ def creator(CORPUS_FOLDER_PATH):
 def centroid_analize(audio, sr, fft_size=2048, hop_size=512):
     centroid_data = librosa.feature.spectral_centroid(y=audio, sr=sr, n_fft=fft_size, hop_length=hop_size)
     return centroid_data[0]
+
+
+def flatness_analize(audio, fft_size=2048, hop_size=512):
+    flatness_data = librosa.feature.spectral_flatness(y=audio, n_fft=fft_size, hop_length=hop_size)
+    return flatness_data[0]
 
 
 def get_frames_time(audio, sr=22050, fft_size=2048, hop_size=512):
@@ -94,7 +111,22 @@ def get_frames_time(audio, sr=22050, fft_size=2048, hop_size=512):
     return frame_time_pos
 
 
+def closest(keys, K):
+    keys = np.asarray(keys)
+    index_closest_key = (np.abs(keys - K)).argmin()
+    return keys[index_closest_key], index_closest_key
+
+
+def get_closest_frame(dict, K):
+    keys = [*dict]
+    closest_frame, _ = closest(keys, K)
+    path = dict[closest_frame]["path"]
+    time_pos = dict[closest_frame]["time_pos"]
+    return path, time_pos
+
+
 
 dict = creator(CORPUS_FOLDER_PATH)
 
-print(dict)
+path, time_pos = get_closest_frame(dict["flatness"], 0.023456)
+print(path, time_pos)
