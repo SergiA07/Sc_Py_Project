@@ -2,20 +2,21 @@ import argparse
 import random
 import time
 import json
-from analyser import Analyser
+from analyser import FeatureAnalyser
 
 from pythonosc import udp_client
 
-OSC_CONFIG_FILEPATH = './osc_config.json'
-
+OSC_CONFIG_FILEPATH = './config/osc_config.json'
 
 
 def envia():
     # from sc: feature, value
     # from sc: feature, value
     for x in range(100):
-        sc_client.send_message("/control1", {'path': random.random(), 'time_pos':random.random()})
+        sc_client.send_message(
+            "/control1", {'path': random.random(), 'time_pos': random.random()})
         time.sleep(0.01)
+
 
 if __name__ == "__main__":
     with open(OSC_CONFIG_FILEPATH) as json_file:
@@ -25,10 +26,11 @@ if __name__ == "__main__":
         osc_config["supercollider"]["ip"],
         osc_config["supercollider"]["port"])
 
-    analisis = Analyser(2, 3)
+    analisis = FeatureAnalyser()
+    print(analisis.dict)
 
     #get_closest('centroid', 0.3546)
-    #envia()
+    # envia()
 
 
 # importar analyser
