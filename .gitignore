@@ -1,7 +1,7 @@
 proves.py
 
-sounds/*
-
 .vscode
 
-osc_config.json
+sounds/*
+
+/config/osc_config.json

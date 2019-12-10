@@ -1,0 +1,10 @@
+{
+    "centroid": {
+        "fft_size": 2048,
+        "hop_size": 512
+    },
+    "flatness": {
+        "fft_size": 2048,
+        "hop_size": 512
+    }
+}

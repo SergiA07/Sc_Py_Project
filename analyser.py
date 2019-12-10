@@ -15,8 +15,8 @@ from sklearn.neighbors import NearestNeighbors
 
 
 # ------------- constants ------ #
-CORPUS_FOLDER_PATH = join(getcwd(),  "sounds")
-
+CORPUS_FOLDER_PATH = join(getcwd(), 'sounds')
+CONFIG_ANALYSIS_PATH = join(getcwd(),'config/analysis_config.json')
 # ------------- constants ------ #
 
 
@@ -50,22 +50,13 @@ class FeatureAnalyser:
             }
 
     def compute_feature_dictionaries(self):
-        config_analysis = {
-            # contain the config info to create each feature dictionary
-            "centroid": {
-                "fft_size": 2048,
-                "hop_size": 512
-            },
-            "flatness": {
-                "fft_size": 2048,
-                "hop_size": 512
-            }
-        }
+        with open(CONFIG_ANALYSIS_PATH) as json_file:
+            config_analysis = json.load(json_file)
 
         features_dict = {
-            "centroid": {},
-            "flatness": {},
-        }
+                "centroid": {},
+                "flatness": {},
+            }
 
         valid_tracks = self.valid_tracks_fullpaths(self.corpus_path)
 
@@ -110,7 +101,7 @@ class FeatureAnalyser:
         # ens dona la posició temporal de la meitat de cada frame de 2048 samples
         return frame_time_pos
 
-    def closest(self, keys, K):
+    def closest(self,keys, K):
         keys = np.asarray(keys)
         index_closest_key = (np.abs(keys - K)).argmin()
         return keys[index_closest_key], index_closest_key

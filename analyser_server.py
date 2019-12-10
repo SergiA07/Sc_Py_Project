@@ -1,4 +1,7 @@
+from os import listdir, getcwd
+from os.path import isfile, join
 import argparse
+import math
 import random
 import time
 import json
@@ -6,19 +9,24 @@ from analyser import FeatureAnalyser
 
 from pythonosc import udp_client
 
-OSC_CONFIG_FILEPATH = './config/osc_config.json'
+from pythonosc import dispatcher
+from pythonosc import osc_server
+
+# ------------- constants ------ #
+OSC_CONFIG_FILEPATH = join(getcwd(),'config/osc_config.json')
+# ------------- constants ------ #
 
 
-def envia():
-    # from sc: feature, value
-    # from sc: feature, value
-    for x in range(100):
-        sc_client.send_message(
-            "/control1", {'path': random.random(), 'time_pos': random.random()})
-        time.sleep(0.01)
+def receive_send_data(address, *args):
+    feature = args[0]
+    valor = args[1]
+    frame_path, frame_time = analisis.get_closest_frame(feature, valor)
+    sc_client.send_message("/data", [frame_path, frame_time])
 
 
 if __name__ == "__main__":
+    analisis = FeatureAnalyser()
+
     with open(OSC_CONFIG_FILEPATH) as json_file:
         osc_config = json.load(json_file)
 
@@ -26,12 +34,11 @@ if __name__ == "__main__":
         osc_config["supercollider"]["ip"],
         osc_config["supercollider"]["port"])
 
-    analisis = FeatureAnalyser()
-    print(analisis.dict)
+    dispatcher = dispatcher.Dispatcher()
+    dispatcher.map("/data", receive_send_data)
 
-    #get_closest('centroid', 0.3546)
-    # envia()
-
-
-# importar analyser
-# envia SC com a objecte
+    server = osc_server.ThreadingOSCUDPServer(
+        (osc_config["python"]["ip"], osc_config["python"]["port"]),
+         dispatcher)
+    print("Serving on {}".format(server.server_address))
+    server.serve_forever()
