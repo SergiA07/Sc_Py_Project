@@ -1,19 +1,15 @@
-s.boot
 NetAddr.localAddr
 
 (
 	~currentPath = PathName(thisProcess.nowExecutingPath).parentPath;
 	~osc_config = (~currentPath ++ "config/osc_config.json").parseYAMLFile;
-	~sc_address = NetAddr(~osc_config["supercollider"]["ip"], ~osc_config["supercollider"]["port"]);
-	~processing_address = NetAddr(~osc_config["processing"]["ip"], ~osc_config["processing"]["port"]);
-	~python_address = NetAddr(~osc_config["python"]["ip"], ~osc_config["python"]["port"]);
+	~sc_address = NetAddr(~osc_config["supercollider"]["ip"], ~osc_config["supercollider"]["port"].asInteger);
+	~processing_address = NetAddr(~osc_config["processing"]["ip"], ~osc_config["processing"]["port"].asInteger);
+	~python_address = NetAddr(~osc_config["python"]["ip"], ~osc_config["python"]["port"].asInteger);
 )
 
-
-~python_address = NetAddr("127.0.0.1", 12000);
-
-
-
+(
+OSCdef.free(\sc_listener);
 OSCdef(\sc_listener, {
 	arg msg;
 	var path, time_pos;
@@ -23,6 +19,7 @@ OSCdef(\sc_listener, {
 	time_pos.postln;
 }, "/data"
 ).add;
+)
 
 
 (
@@ -39,3 +36,25 @@ OSCdef(\sc_listener, {
 		});
 	}).play
 )
+s.sync;
+
+
+/// A FER
+
+Pbindef(\bomboProcessing,
+		\instrument, \default,
+		\search, Pfunc({
+			var feature, valor;
+
+		}
+		\dur, Prand([1, 0.25, 0.5], inf) / 2,
+		\pfunc, Ptime.new,
+		\amp, Pwhite(0.25, 1, inf),
+		\pan, Pwhite(-0.75, 0.75, inf),
+		\prova, Pfunc({
+			arg event;
+			var ampCercle, posCercle;
+			ampCercle = event[\amp].linlin(0.25, 1, 25, 150).asInteger;
+			posCercle = event[\pan].linlin(-0.75, 0.75, 100, 500).asInteger;
+			~processing.sendMsg("/", posCercle, 180, ampCercle, ampCercle);
+			}));

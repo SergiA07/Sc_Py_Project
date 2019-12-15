@@ -5,3 +5,5 @@ proves.py
 sounds/*
 
 /config/osc_config.json
+
+__pycache__/
