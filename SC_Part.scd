@@ -17,9 +17,33 @@ OSCdef(\sc_listener, {
 	time_pos = msg[2];
 	path.postln;
 	time_pos.postln;
-}, "/data"
-).add;
+	}, "/data").add;
 )
+
+SynthDef(\playSergi, {
+		arg buf=0, vel=1, pos=0, cutFreqLow = 20000, cutFreqHigh = 0, atk=0.001, sus=0.2, rel=0.05, amp=1, pan=0, out=0;
+		var senal, env;
+		env = Env([0,1,1,0],[atk,sus,rel],[1,0,-1]).kr(2, Impulse.ar(2));
+		senal = PlayBuf.ar(1, buf, vel * BufRateScale.kr(buf), startPos:pos, loop: 1);
+		senal = senal * env;
+		//senal = LPF.ar(senal, cutFreqLow);
+		//senal = HPF.ar(senal, cutFreqHigh);
+		senal = Pan2.ar(senal, pan, amp);
+		OffsetOut.ar(out, senal);
+		}).add;
+
+OSCdef(\crear, {
+	arg msg;
+
+	Synth(\play, [\buf, ,\vel, 1, \pos, ])
+	/*
+	if (~synths[msg[1]] == nil,
+		//{~synths[msg[1]] = Synth(\sine1, [\freq, rrand(2,1000)]).register;}
+		{~synths[msg[1]] = Synth(\playSergi, [\buf, rrand(0,0)]).register; ~encendidos = ~encendidos + 1;}
+
+	)
+	*/
+	}, "/data").add;
 
 
 (

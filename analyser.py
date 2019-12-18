@@ -2,7 +2,8 @@ from os import listdir, getcwd
 from os.path import isfile, join
 from operator import itemgetter
 import codecs
-import json
+import simplejson as json
+#import json
 
 import pandas as pd
 import numpy as np
@@ -17,6 +18,7 @@ from sklearn.neighbors import NearestNeighbors
 # ------------- constants ------ #
 CORPUS_FOLDER_PATH = join(getcwd(), 'sounds')
 CONFIG_ANALYSIS_PATH = join(getcwd(),'config/analysis_config.json')
+FEATURES_FILEPATH = join(getcwd(),'features/')
 # ------------- constants ------ #
 
 
@@ -53,23 +55,31 @@ class FeatureAnalyser:
         with open(CONFIG_ANALYSIS_PATH) as json_file:
             config_analysis = json.load(json_file)
 
-        features_dict = {
-                "centroid": {},
-                "flatness": {},
-            }
+        features_dict = { }
+        for feature_name in config_analysis.keys():
+            features_dict[feature_name] = {}
+        print(features_dict)
 
         valid_tracks = self.valid_tracks_fullpaths(self.corpus_path)
 
         for track_path in valid_tracks:
-            audio, sr = librosa.load(track_path)
 
+            #if precomupted
+
+            # else compute
+            audio, sr = librosa.load(track_path)
             fft_size, hop_size = itemgetter(
                 "fft_size", "hop_size")(config_analysis["centroid"])
+            feature_analisis = self.centroid_analize(audio, sr, fft_size, hop_size)
+            time_pos = self.get_frames_time(audio, sr, fft_size, hop_size)
+            with open(join(FEATURES_FILEPATH, track_path + '.json'), 'w') as f:
+                json.dump({'feature_analisis': feature_analisis, 'time_pos': time_pos}, f)
+
             self.add_to_features_dict(
                 features_dict["centroid"],
                 track_path,
-                self.centroid_analize(audio, sr, fft_size, hop_size),
-                self.get_frames_time(audio, sr, fft_size, hop_size)
+                feature_analisis,
+                time_pos
             )
 
             fft_size, hop_size = itemgetter(
