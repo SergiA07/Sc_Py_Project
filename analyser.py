@@ -1,5 +1,6 @@
+import os
 from os import listdir, getcwd
-from os.path import isfile, join
+from os.path import isfile, join, normpath
 from operator import itemgetter
 import codecs
 import simplejson as json
@@ -31,16 +32,19 @@ class FeatureAnalyser:
     def is_valid_sound(self, file):
         return isfile(file) and file.lower().endswith(('.wav', '.aiff'))
 
-    def valid_tracks_fullpaths(self, path):
+    def valid_tracks_fullpaths(self):
+        path = self.corpus_path
         valid_tracks_fullpaths = []
+        tracks_names = []
         tracks_fullpaths = [join(path, track) for track in listdir(path)]
 
-        for path in tracks_fullpaths:
+        for path, name in zip(tracks_fullpaths, listdir(path)):
             if self.is_valid_sound(path):
                 valid_tracks_fullpaths.append(path)
+                tracks_names.append(name)
             else:
                 print('invalid format for ', path, ' ,only wav or aiff')
-        return valid_tracks_fullpaths
+        return valid_tracks_fullpaths, tracks_names
 
     def add_to_features_dict(self, feature_dict, track_path, feature_values, time_pos):
         for feature_val, time in zip(feature_values, time_pos):
@@ -58,40 +62,43 @@ class FeatureAnalyser:
         features_dict = { }
         for feature_name in config_analysis.keys():
             features_dict[feature_name] = {}
-        print(features_dict)
 
-        valid_tracks = self.valid_tracks_fullpaths(self.corpus_path)
+        valid_tracks, tracks_names = self.valid_tracks_fullpaths()
 
-        for track_path in valid_tracks:
-
+        for track_path, track_name in zip(valid_tracks, tracks_names):
+            for feature_name in config_analysis.keys():
+                feature_folder = join(FEATURES_FILEPATH, feature_name)
+                feature_analisis_json = join(feature_folder, track_name + '.json')
             #if precomupted
-
+                if os.path.exists(feature_analisis_json):
+                    with open(feature_analisis_json) as json_file:
+                        analisis = json.load(json_file)
+                        feature_analisis, time_pos = itemgetter("feature_analisis", "time_pos")(analisis)
+                        print("carregat", track_name, feature_name)
+                else:
             # else compute
-            audio, sr = librosa.load(track_path)
-            fft_size, hop_size = itemgetter(
-                "fft_size", "hop_size")(config_analysis["centroid"])
-            feature_analisis = self.centroid_analize(audio, sr, fft_size, hop_size)
-            time_pos = self.get_frames_time(audio, sr, fft_size, hop_size)
-            with open(join(FEATURES_FILEPATH, track_path + '.json'), 'w') as f:
-                json.dump({'feature_analisis': feature_analisis, 'time_pos': time_pos}, f)
+                    audio, sr = librosa.load(track_path)
+                    fft_size, hop_size = itemgetter(
+                        "fft_size", "hop_size")(config_analysis[feature_name])
+                    function = getattr(self,feature_name + '_analize')
+                    feature_analisis = function(audio, sr, fft_size, hop_size)
+                    time_pos = self.get_frames_time(audio, sr, fft_size, hop_size)
 
+                    if not os.path.exists(feature_folder):
+                        os.makedirs(feature_folder)
+
+                    with open(feature_analisis_json, 'w') as f:
+                        json.dump({'feature_analisis': feature_analisis.tolist(), 'time_pos': time_pos.tolist()}, f)
+                    print("computat", track_name, feature_name)
             self.add_to_features_dict(
-                features_dict["centroid"],
+                features_dict[feature_name],
                 track_path,
                 feature_analisis,
                 time_pos
             )
 
-            fft_size, hop_size = itemgetter(
-                "fft_size", "hop_size")(config_analysis["flatness"])
-            self.add_to_features_dict(
-                features_dict["flatness"],
-                track_path,
-                self.flatness_analize(audio, sr, fft_size, hop_size),
-                self.get_frames_time(audio, sr, fft_size, hop_size)
-            )
-
         return features_dict
+
 
     def centroid_analize(self, audio, sr, fft_size=2048, hop_size=512):
         centroid_data = librosa.feature.spectral_centroid(

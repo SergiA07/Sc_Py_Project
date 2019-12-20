@@ -8,9 +8,11 @@ NetAddr.localAddr
 	~python_address = NetAddr(~osc_config["python"]["ip"], ~osc_config["python"]["port"].asInteger);
 )
 
+
 (
-OSCdef.free(\sc_listener);
-OSCdef(\sc_listener, {
+(
+OSCdef.free(\sc_data_listener);
+OSCdef(\sc_data_listener, {
 	arg msg;
 	var path, time_pos;
 	path = msg[1];
@@ -18,32 +20,21 @@ OSCdef(\sc_listener, {
 	path.postln;
 	time_pos.postln;
 	}, "/data").add;
+);
+
+
+(
+OSCdef.free(\audio_path_listener);
+OSCdef(\audio_path_listener, {
+	arg msg;
+	msg[3].postln;
+	}, "/audio_paths").add;
+)
 )
 
-SynthDef(\playSergi, {
-		arg buf=0, vel=1, pos=0, cutFreqLow = 20000, cutFreqHigh = 0, atk=0.001, sus=0.2, rel=0.05, amp=1, pan=0, out=0;
-		var senal, env;
-		env = Env([0,1,1,0],[atk,sus,rel],[1,0,-1]).kr(2, Impulse.ar(2));
-		senal = PlayBuf.ar(1, buf, vel * BufRateScale.kr(buf), startPos:pos, loop: 1);
-		senal = senal * env;
-		//senal = LPF.ar(senal, cutFreqLow);
-		//senal = HPF.ar(senal, cutFreqHigh);
-		senal = Pan2.ar(senal, pan, amp);
-		OffsetOut.ar(out, senal);
-		}).add;
 
-OSCdef(\crear, {
-	arg msg;
 
-	Synth(\play, [\buf, ,\vel, 1, \pos, ])
-	/*
-	if (~synths[msg[1]] == nil,
-		//{~synths[msg[1]] = Synth(\sine1, [\freq, rrand(2,1000)]).register;}
-		{~synths[msg[1]] = Synth(\playSergi, [\buf, rrand(0,0)]).register; ~encendidos = ~encendidos + 1;}
-
-	)
-	*/
-	}, "/data").add;
+~python_address.sendMsg("/audio_paths")
 
 
 (
@@ -60,10 +51,51 @@ OSCdef(\crear, {
 		});
 	}).play
 )
-s.sync;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /// A FER
+
+SynthDef(\playSergi, {
+		arg buf=0, vel=1, pos=0, cutFreqLow = 20000, cutFreqHigh = 0, atk=0.001, sus=0.2, rel=0.05, amp=1, pan=0, out=0;
+		var senal, env;
+		env = Env([0,1,1,0],[atk,sus,rel],[1,0,-1]).kr(2, Impulse.ar(2));
+		senal = PlayBuf.ar(1, buf, vel * BufRateScale.kr(buf), startPos:pos, loop: 1);
+		senal = senal * env;
+		//senal = LPF.ar(senal, cutFreqLow);
+		//senal = HPF.ar(senal, cutFreqHigh);
+		senal = Pan2.ar(senal, pan, amp);
+		OffsetOut.ar(out, senal);
+		}).add;
+
+/*
+OSCdef(\crear, {
+	arg msg;
+
+	Synth(\play, [\buf, ,\vel, 1, \pos, ])
+
+	if (~synths[msg[1]] == nil,
+		//{~synths[msg[1]] = Synth(\sine1, [\freq, rrand(2,1000)]).register;}
+		{~synths[msg[1]] = Synth(\playSergi, [\buf, rrand(0,0)]).register; ~encendidos = ~encendidos + 1;}
+
+	)
+
+	}, "/data").add;
+*/
+
 
 Pbindef(\bomboProcessing,
 		\instrument, \default,

@@ -4,6 +4,8 @@ proves.py
 
 sounds/*
 
+features/
+
 /config/osc_config.json
 
 __pycache__/
