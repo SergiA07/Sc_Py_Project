@@ -1,0 +1,6 @@
+matplotlib==3.1.1
+osc4py3==1.0.8
+pandas==0.25.0
+librosa==0.7.1
+matplotlib==3.1.1
+sklearn==0.0

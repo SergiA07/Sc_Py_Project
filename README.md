@@ -14,27 +14,27 @@ These instructions will get you a copy of the project up and running on your loc
 We will need **Python3** to run the code and **pip3** to install required libraries
 
     for Ubuntu:
-> `$ sudo apt install -y python3 python3-pip`
+> $ sudo apt install -y python3 python3-pip
 
 Install Supercollider
 
     for Ubuntu:
-> `$ sudo apt install -y supercollider`
+> $ sudo apt install -y supercollider
 
 ## Download/Clone Repo
 
 To your projects folder:
 
-> `$ cd $HOME/Workspace`
-> `$ git clone git@github.com:SergiA07/Sc_Py-Sergi-Lluis.git`
-> `$ cd Sc_Py-Sergi-Lluis`
+> $ cd $HOME/Workspace
+> $ git clone git@github.com:SergiA07/Sc_Py-Sergi-Lluis.git
+> $ cd Sc_Py-Sergi-Lluis
 
 ## Setup Python Virtual Environment
 
 Use the package manager **pip** to install virtualenv and virtualenvwrapper (_pip_ or _pip3_, both are fine)
 
     for Ubuntu:
-> `$ pip install virtualenv virtualenvwrapper`
+> $ pip install virtualenv virtualenvwrapper
 
 ### Shell Startup File
 
@@ -45,9 +45,9 @@ Add three lines to your shell startup file (.bashrc, .profile, etc.) to set:
   * And the location of the script installed with virtualenvwrapper package
 
     For Ubuntu:
-> `$ export WORKON_HOME=$HOME/.virtualenvs`
-> `$ export PROJECT_HOME=$HOME/Workspace`
-> `$ source /usr/local/bin/virtualenvwrapper.sh`
+> $ export WORKON_HOME=$HOME/.virtualenvs
+> $ export PROJECT_HOME=$HOME/Workspace
+> $ source /usr/local/bin/virtualenvwrapper.sh
 
 ### Create Virtual Environment
 
@@ -58,10 +58,10 @@ Using the **mkvirtualenv** tool provided by **virtualenvwrapper** create a new v
   * Set the Python interpreter version
 
     For Ubuntu:
-> `$ mkvirtualenv --help`
+> $ mkvirtualenv --help
 > Usage: mkvirtualenv [-a project_path] [-i package] [-r requirements_file] [virtualenv options] env_name
 >
-> `$ mkvirtualenv -a $HOME/Workspace/Sc_Py-Sergi-Lluis/ -r $HOME/Workspace/Sc_Py-Sergi-Lluis/requirements.txt --python=python3 collider`
+> $ mkvirtualenv -a $HOME/Workspace/Sc_Py-Sergi-Lluis/ -r $HOME/Workspace/Sc_Py-Sergi-Lluis/requirements.txt --python=python3 collider
 
 ### Activate/Deactivate Virtual Environment
 
