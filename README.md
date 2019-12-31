@@ -45,9 +45,11 @@ Add three lines to your shell startup file (.bashrc, .profile, etc.) to set:
   * And the location of the script installed with virtualenvwrapper package
 
     For Ubuntu:
-> $ export WORKON_HOME=$HOME/.virtualenvs
-> $ export PROJECT_HOME=$HOME/Workspace
-> $ source /usr/local/bin/virtualenvwrapper.sh
+```
+$ export WORKON_HOME=$HOME/.virtualenvs
+$ export PROJECT_HOME=$HOME/Workspace
+$ source /usr/local/bin/virtualenvwrapper.sh
+```
 
 ### Create Virtual Environment
 
@@ -56,7 +58,7 @@ Using the **mkvirtualenv** tool provided by **virtualenvwrapper** create a new v
   * Link this _venv_ to the project with the -a flag
   * Install dependencies by referencing the _requirements.txt_ file contained in the project
   * Set the Python interpreter version
-
+  
     For Ubuntu:
 > $ mkvirtualenv --help
 > Usage: mkvirtualenv [-a project_path] [-i package] [-r requirements_file] [virtualenv options] env_name
