@@ -27,16 +27,23 @@ OSCdef(\sc_data_listener, {
 OSCdef.free(\audio_path_listener);
 OSCdef(\audio_path_listener, {
 	arg msg;
-	msg[3].postln;
+	var paths;
+	paths = msg;
+	paths.removeAt(0);
+	paths.postln;
+	~carregarBuffers.(paths);
 	}, "/audio_paths").add;
 )
 )
 
-
+~carregarBuffers = {
+	arg paths;
+	~buffers = paths.collect({arg path; Buffer.readChannel(s, path, channels:[0])});
+}
 
 ~python_address.sendMsg("/audio_paths")
-
-
+~buffers[1].play
+s.boot
 (
 	Routine({
 		10.do({ arg i;

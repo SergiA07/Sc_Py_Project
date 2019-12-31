@@ -77,7 +77,8 @@ class FeatureAnalyser:
                         print("carregat", track_name, feature_name)
                 else:
             # else compute
-                    audio, sr = librosa.load(track_path)
+                    audio, sr = librosa.load(track_path, mono=False)
+                    audio = audioST[0] #només agafem el canal esquerra
                     fft_size, hop_size = itemgetter(
                         "fft_size", "hop_size")(config_analysis[feature_name])
                     function = getattr(self,feature_name + '_analize')

@@ -25,7 +25,8 @@ def receive_send_data(address, *args):
 
 def handle_audio_paths_request(address, *args):
     audio_full_paths, _ = analisis.valid_tracks_fullpaths()
-    sc_client.send_message("/audio_paths", [audio_full_paths])
+    print(audio_full_paths)
+    sc_client.send_message("/audio_paths", audio_full_paths)
 
 
 if __name__ == "__main__":
