@@ -18,8 +18,8 @@ from sklearn.neighbors import NearestNeighbors
 
 # ------------- constants ------ #
 CORPUS_FOLDER_PATH = join(getcwd(), 'sounds')
-CONFIG_ANALYSIS_PATH = join(getcwd(),'config/analysis_config.json')
-FEATURES_FILEPATH = join(getcwd(),'features/')
+CONFIG_ANALYSIS_PATH = join(getcwd(), 'config/analysis_config.json')
+FEATURES_FILEPATH = join(getcwd(), 'features/')
 # ------------- constants ------ #
 
 
@@ -59,7 +59,7 @@ class FeatureAnalyser:
         with open(CONFIG_ANALYSIS_PATH) as json_file:
             config_analysis = json.load(json_file)
 
-        features_dict = { }
+        features_dict = {}
         for feature_name in config_analysis.keys():
             features_dict[feature_name] = {}
 
@@ -68,28 +68,32 @@ class FeatureAnalyser:
         for track_path, track_name in zip(valid_tracks, tracks_names):
             for feature_name in config_analysis.keys():
                 feature_folder = join(FEATURES_FILEPATH, feature_name)
-                feature_analisis_json = join(feature_folder, track_name + '.json')
-            #if precomupted
+                feature_analisis_json = join(
+                    feature_folder, track_name + '.json')
+            # if precomupted
                 if os.path.exists(feature_analisis_json):
                     with open(feature_analisis_json) as json_file:
                         analisis = json.load(json_file)
-                        feature_analisis, time_pos = itemgetter("feature_analisis", "time_pos")(analisis)
+                        feature_analisis, time_pos = itemgetter(
+                            "feature_analisis", "time_pos")(analisis)
                         print("carregat", track_name, feature_name)
                 else:
-            # else compute
+                    # else compute
                     audio, sr = librosa.load(track_path, mono=False)
-                    audio = audioST[0] #només agafem el canal esquerra
+                    audio = audio[0]  # només agafem el canal esquerra
                     fft_size, hop_size = itemgetter(
                         "fft_size", "hop_size")(config_analysis[feature_name])
-                    function = getattr(self,feature_name + '_analize')
+                    function = getattr(self, feature_name + '_analize')
                     feature_analisis = function(audio, sr, fft_size, hop_size)
-                    time_pos = self.get_frames_time(audio, sr, fft_size, hop_size)
+                    time_pos = self.get_frames_time(
+                        audio, sr, fft_size, hop_size)
 
                     if not os.path.exists(feature_folder):
                         os.makedirs(feature_folder)
 
                     with open(feature_analisis_json, 'w') as f:
-                        json.dump({'feature_analisis': feature_analisis.tolist(), 'time_pos': time_pos.tolist()}, f)
+                        json.dump({'feature_analisis': feature_analisis.tolist(
+                        ), 'time_pos': time_pos.tolist()}, f)
                     print("computat", track_name, feature_name)
             self.add_to_features_dict(
                 features_dict[feature_name],
@@ -99,7 +103,6 @@ class FeatureAnalyser:
             )
 
         return features_dict
-
 
     def centroid_analize(self, audio, sr, fft_size=2048, hop_size=512):
         centroid_data = librosa.feature.spectral_centroid(
@@ -119,7 +122,7 @@ class FeatureAnalyser:
         # ens dona la posició temporal de la meitat de cada frame de 2048 samples
         return frame_time_pos
 
-    def closest(self,keys, K):
+    def closest(self, keys, K):
         keys = np.asarray(keys)
         index_closest_key = (np.abs(keys - K)).argmin()
         return keys[index_closest_key], index_closest_key
