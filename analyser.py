@@ -70,7 +70,7 @@ class FeatureAnalyser:
                 feature_folder = join(FEATURES_FILEPATH, feature_name)
                 feature_analisis_json = join(
                     feature_folder, track_name + '.json')
-            # if precomupted
+                # if precomupted
                 if os.path.exists(feature_analisis_json):
                     with open(feature_analisis_json) as json_file:
                         analisis = json.load(json_file)
@@ -82,7 +82,8 @@ class FeatureAnalyser:
                     audio, sr = librosa.load(track_path, mono=False)
                     if len(audio.shape) > 1:
                         audio = audio[0]  # només agafem el canal esquerra
-                    audio = np.asfortranarray(audio) # Necessari per alguns arxius de audio, veure realment que fa
+                    # Necessari per alguns arxius de audio, veure realment que fa
+                    audio = np.asfortranarray(audio)
                     fft_size, hop_size = itemgetter(
                         "fft_size", "hop_size")(config_analysis[feature_name])
                     function = getattr(self, feature_name + '_analize')
@@ -97,12 +98,13 @@ class FeatureAnalyser:
                         json.dump({'feature_analisis': feature_analisis.tolist(
                         ), 'time_pos': time_pos.tolist()}, f)
                     print("computat", track_name, feature_name)
-            self.add_to_features_dict(
-                features_dict[feature_name],
-                track_path,
-                feature_analisis,
-                time_pos
-            )
+
+                self.add_to_features_dict(
+                    features_dict[feature_name],
+                    track_path,
+                    feature_analisis,
+                    time_pos
+                )
 
         return features_dict
 
@@ -124,15 +126,15 @@ class FeatureAnalyser:
         # ens dona la posició temporal de la meitat de cada frame de 2048 samples
         return frame_time_pos
 
-    def closest(self, keys, K):
+    def closest(self, keys, target_value):
         keys = np.asarray(keys)
-        index_closest_key = (np.abs(keys - K)).argmin()
+        index_closest_key = (np.abs(keys - target_value)).argmin()
         return keys[index_closest_key], index_closest_key
 
-    def get_closest_frame(self, dict_name, K):
-        features_dict = self.features_dict[dict_name]
+    def get_closest_frame(self, feature_name, target_value):
+        features_dict = self.features_dict[feature_name]
         keys = [*features_dict]
-        closest_frame, _ = self.closest(keys, K)
+        closest_frame, _ = self.closest(keys, target_value)
         path = features_dict[closest_frame]["path"]
         time_pos = features_dict[closest_frame]["time_pos"]
         return path, time_pos
