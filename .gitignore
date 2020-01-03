@@ -1,11 +1,7 @@
-proves.py
-
+__pycache__/
 .vscode
 
+proves.py
 sounds/*
-
 features/
-
 /config/osc_config.json
-
-__pycache__/
