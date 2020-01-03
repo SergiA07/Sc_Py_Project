@@ -1,47 +1,73 @@
 NetAddr.localAddr
 
 (
-	~currentPath = PathName(thisProcess.nowExecutingPath).parentPath;
-	~osc_config = (~currentPath ++ "config/osc_config.json").parseYAMLFile;
-	~sc_address = NetAddr(~osc_config["supercollider"]["ip"], ~osc_config["supercollider"]["port"].asInteger);
-	~processing_address = NetAddr(~osc_config["processing"]["ip"], ~osc_config["processing"]["port"].asInteger);
-	~python_address = NetAddr(~osc_config["python"]["ip"], ~osc_config["python"]["port"].asInteger);
+ServerQuit.removeAll;
+ServerBoot.removeAll;
+ServerTree.removeAll;
+Buffer.freeAll;
+
+s.options.sampleRate = 48000;
+s.latency = 0.025;
+s.options.numOutputBusChannels = 8;
+s.options.blockSize = 64;
+
+~currentPath = PathName(thisProcess.nowExecutingPath).parentPath;
+~osc_config = (~currentPath ++ "config/osc_config.json").parseYAMLFile;
+~sc_address = NetAddr(~osc_config["supercollider"]["ip"], ~osc_config["supercollider"]["port"].asInteger);
+~processing_address = NetAddr(~osc_config["processing"]["ip"], ~osc_config["processing"]["port"].asInteger);
+~python_address = NetAddr(~osc_config["python"]["ip"], ~osc_config["python"]["port"].asInteger);
+
+
+s.waitForBoot{
+	~loadBuffers = {
+		arg paths;
+		~buffers = paths.collect({arg path; Buffer.readChannel(s, path, channels:[0])});
+		};
+
+	SynthDef(\granulator,{
+		arg bufnum=1, posLectura=0, velocidad = 1, dur=1, pan=0;
+		var senal, env;
+
+		senal = PlayBuf.ar(1, bufnum, velocidad, 1, posLectura);
+		senal = Pan2.ar(senal, pan);
+		env = EnvGen.ar(Env.sine(dur, 0.1), doneAction: 2);
+
+		OffsetOut.ar(0, senal * env)
+		}).add;
+
+
+	OSCdef.free(\sc_data_listener);
+	OSCdef(\sc_data_listener, {
+		arg msg;
+		var path, time_pos;
+		path = msg[1];
+		time_pos = msg[2];
+		path.postln;
+		time_pos.postln;
+
+		}, "/data").add;
+
+
+	OSCdef.free(\audio_path_listener);
+	OSCdef(\audio_path_listener, {
+		arg msg;
+		var paths;
+		paths = msg;
+		paths.removeAt(0);
+		paths.postln;
+		~loadBuffers.(paths);
+		}, "/audio_paths").add;
+
+	}
 )
 
 
-(
-(
-OSCdef.free(\sc_data_listener);
-OSCdef(\sc_data_listener, {
-	arg msg;
-	var path, time_pos;
-	path = msg[1];
-	time_pos = msg[2];
-	path.postln;
-	time_pos.postln;
-	}, "/data").add;
-);
 
-
-(
-OSCdef.free(\audio_path_listener);
-OSCdef(\audio_path_listener, {
-	arg msg;
-	var paths;
-	paths = msg;
-	paths.removeAt(0);
-	paths.postln;
-	~carregarBuffers.(paths);
-	}, "/audio_paths").add;
-)
-)
-
-~carregarBuffers = {
-	arg paths;
-	~buffers = paths.collect({arg path; Buffer.readChannel(s, path, channels:[0])});
-}
 
 ~python_address.sendMsg("/audio_paths")
+~python_address.sendMsg("/data", "centroid", 3000);
+
+
 ~buffers[1].play
 s.boot
 (
