@@ -1,4 +1,7 @@
-Els anàlisi estan fets amb center:false ja que així no fem padding i el número de frames que ens surten és limita a aquells que tenen la dimensió total donada per n_fft = 2048.
-En altres paraules, només frames sencers.
 
-Per norma general, el time_pos fa referència a l'inici temporal de cada frame (NO el centre de la finestra)
+* Els anàlisi estan fets amb center:false.
+* Quan carreguem l'audio, només utilitzem el canal esquerre.
+* Quan carreguem l'audio, descartem els ultims samples si no encaixen en la mida d'un frame. En altres paraules, només frames sencers
+
+* Per norma general, el time_pos fa referència a l'inici temporal de cada frame (NO el centre de la finestra)
+ - Els feature anàlisis estan fets amb center:false.
