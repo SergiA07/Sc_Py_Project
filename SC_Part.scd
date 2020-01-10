@@ -21,7 +21,8 @@ s.options.blockSize = 64;
 s.waitForBoot{
 	~loadBuffers = {
 		arg paths;
-		~buffers = paths.collect({arg path; Buffer.readChannel(s, path, channels:[0])});
+		~buffers = Dictionary.new;
+		paths.collect({arg path; ~buffers.put(path, Buffer.readChannel(s, path, channels:[0]))});
 		};
 
 	SynthDef(\granulator,{
@@ -43,8 +44,8 @@ s.waitForBoot{
 		path = msg[1];
 		time_pos = msg[2];
 		path.postln;
-		time_pos.postln;
-
+		time_pos.postln; //Falta ajustar el posLectura i el dur en funcio del frame a reproduir
+		Synth(\granulator,[\bufnum, ~buffers.at(path), \posLectura, rrand(1000, 50000), \velocidad, 1, \dur, 0.1, \pan, 0])
 		}, "/data").add;
 
 
@@ -62,25 +63,23 @@ s.waitForBoot{
 )
 
 
-
-
 ~python_address.sendMsg("/audio_paths")
-~python_address.sendMsg("/data", "centroid", 3000);
+~python_address.sendMsg("/data", "centroid", 5500);
 
-
-~buffers[1].play
 s.boot
 (
 	Routine({
 		10.do({ arg i;
 			var feature, valor;
 			feature = ["centroid", "flatness"].choose;
+			feature.postln;
 			if(feature == "centroid",{
 				valor = rrand(2000,6000);
 			}, {
 				valor = rrand(0.00, 1.0);
 			});
 			~python_address.sendMsg("/data", feature, valor);
+			1.wait;
 		});
 	}).play
 )
