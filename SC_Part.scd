@@ -13,10 +13,20 @@ s.options.blockSize = 64;
 
 ~currentPath = PathName(thisProcess.nowExecutingPath).parentPath;
 ~osc_config = (~currentPath ++ "config/osc_config.json").parseYAMLFile;
+~analysis_config = (~currentPath ++ "config/analysis_config.json").parseYAMLFile;
 ~sc_address = NetAddr(~osc_config["supercollider"]["ip"], ~osc_config["supercollider"]["port"].asInteger);
 ~processing_address = NetAddr(~osc_config["processing"]["ip"], ~osc_config["processing"]["port"].asInteger);
 ~python_address = NetAddr(~osc_config["python"]["ip"], ~osc_config["python"]["port"].asInteger);
 
+~analysis_data = Dictionary.new;
+~analysis_config.keys.collect({
+	arg feature;
+	~analysis_data.add(feature.asSymbol -> (fft_size:~analysis_config[feature]["fft_size"],
+	 hop_size:~analysis_config[feature]["hop_size"],
+	 sample_rate:~analysis_config[feature]["sample_rate"]))
+	})
+
+~analysis_data.at(\flatness).at(\fft_size)
 
 s.waitForBoot{
 	~loadBuffers = {

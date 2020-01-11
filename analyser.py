@@ -112,9 +112,9 @@ class FeatureAnalyser:
                 frames_indices, sr, hop_size)
             return frame_time_pos
 
-        fft_size, hop_size = itemgetter(
-            "fft_size", "hop_size")(feature_config_analisis)
-        audio, sr = librosa.load(track_path, mono=False)
+        fft_size, hop_size, sample_rate = itemgetter(
+            "fft_size", "hop_size", "sample_rate")(feature_config_analisis)
+        audio, sr = librosa.load(track_path, sr=sample_rate, mono=False)
         audio = normalise_audio(audio, hop_size)
 
         function = getattr(self, feature_name + '_analiser')
