@@ -6,27 +6,27 @@ ServerBoot.removeAll;
 ServerTree.removeAll;
 Buffer.freeAll;
 
-s.options.sampleRate = 48000;
-s.latency = 0.025;
-s.options.numOutputBusChannels = 8;
-s.options.blockSize = 64;
-
 ~currentPath = PathName(thisProcess.nowExecutingPath).parentPath;
 ~osc_config = (~currentPath ++ "config/osc_config.json").parseYAMLFile;
 ~analysis_config = (~currentPath ++ "config/analysis_config.json").parseYAMLFile;
+~server_config = (~currentPath ++ "config/server_config.json").parseYAMLFile;
 ~sc_address = NetAddr(~osc_config["supercollider"]["ip"], ~osc_config["supercollider"]["port"].asInteger);
 ~processing_address = NetAddr(~osc_config["processing"]["ip"], ~osc_config["processing"]["port"].asInteger);
 ~python_address = NetAddr(~osc_config["python"]["ip"], ~osc_config["python"]["port"].asInteger);
 
 ~analysis_data = Dictionary.new;
-~analysis_config.keys.collect({
+~analysis_config.keys.asArray.collect({
 	arg feature;
 	~analysis_data.add(feature.asSymbol -> (fft_size:~analysis_config[feature]["fft_size"],
 	 hop_size:~analysis_config[feature]["hop_size"],
-	 sample_rate:~analysis_config[feature]["sample_rate"]))
+	 sample_rate:~analysis_config[feature]["sample_rate"],
+	 frame_duration:(~analysis_config[feature]["fft_size"]).asFloat/(~analysis_config[feature]["sample_rate"]).asFloat))
 	})
 
-~analysis_data.at(\flatness).at(\fft_size)
+s.options.sampleRate = ~server_config["sampleRate"].asInteger;
+s.latency = ~server_config["latency"].asFloat;
+s.options.numOutputBusChannels = ~server_config["numOutputBusChannels"].asInteger;
+s.options.blockSize = ~server_config["blockSize"].asInteger;
 
 s.waitForBoot{
 	~loadBuffers = {
@@ -50,12 +50,17 @@ s.waitForBoot{
 	OSCdef.free(\sc_data_listener);
 	OSCdef(\sc_data_listener, {
 		arg msg;
-		var path, time_pos;
+		var path, time_pos, feature;
 		path = msg[1];
 		time_pos = msg[2];
-		path.postln;
-		time_pos.postln; //Falta ajustar el posLectura i el dur en funcio del frame a reproduir
-		Synth(\granulator,[\bufnum, ~buffers.at(path), \posLectura, rrand(1000, 50000), \velocidad, 1, \dur, 0.1, \pan, 0])
+		feature = msg[3];
+		 //Falta ajustar el posLectura i el dur en funcio del frame a reproduir
+		Synth(\granulator,[
+			\bufnum, ~buffers.at(path),
+			\posLectura, time_pos * ~analysis_data.at(\centroid).at(\sample_rate),
+			\velocidad, BufRateScale.kr(~buffers.at(path)) * 1,
+			\dur, ~analysis_data.at(\centroid).at(\frame_duration),
+			\pan, 0])
 		}, "/data").add;
 
 

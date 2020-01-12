@@ -1,0 +1,7 @@
+{
+    "sampleRate": 48000,
+    "latency": 0.025,
+    "numOutputBusChannels": 8,
+    "blockSize": 64
+
+}

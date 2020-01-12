@@ -21,7 +21,7 @@ def receive_send_data(address, *args):
     feature = args[0]
     valor = args[1]
     frame_path, frame_time = analisis.get_closest_frame(feature, valor)
-    sc_client.send_message("/data", [frame_path, frame_time])
+    sc_client.send_message("/data", [frame_path, frame_time, feature])
 
 def handle_audio_paths_request(address, *args):
     audio_full_paths, _ = analisis.valid_tracks_fullpaths()
