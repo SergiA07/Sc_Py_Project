@@ -21,7 +21,7 @@ Buffer.freeAll;
 	 hop_size:~analysis_config[feature]["hop_size"],
 	 sample_rate:~analysis_config[feature]["sample_rate"],
 	 frame_duration:(~analysis_config[feature]["fft_size"]).asFloat/(~analysis_config[feature]["sample_rate"]).asFloat))
-	})
+	});
 
 s.options.sampleRate = ~server_config["sampleRate"].asInteger;
 s.latency = ~server_config["latency"].asFloat;
@@ -34,12 +34,13 @@ s.waitForBoot{
 		~buffers = Dictionary.new;
 		paths.collect({arg path; ~buffers.put(path, Buffer.readChannel(s, path, channels:[0]))});
 		};
+	s.sync;	
 
 	SynthDef(\granulator,{
 		arg bufnum=1, posLectura=0, velocidad = 1, dur=1, pan=0;
 		var senal, env;
 
-		senal = PlayBuf.ar(1, bufnum, velocidad, 1, posLectura);
+		senal = PlayBuf.ar(1, bufnum, BufRateScale.kr(bufnum) * velocidad, 1, posLectura);
 		senal = Pan2.ar(senal, pan);
 		env = EnvGen.ar(Env.sine(dur, 0.1), doneAction: 2);
 
@@ -51,15 +52,16 @@ s.waitForBoot{
 	OSCdef(\sc_data_listener, {
 		arg msg;
 		var path, time_pos, feature;
+
 		path = msg[1];
 		time_pos = msg[2];
 		feature = msg[3];
-		 //Falta ajustar el posLectura i el dur en funcio del frame a reproduir
+
 		Synth(\granulator,[
 			\bufnum, ~buffers.at(path),
-			\posLectura, time_pos * ~analysis_data.at(\centroid).at(\sample_rate),
-			\velocidad, BufRateScale.kr(~buffers.at(path)) * 1,
-			\dur, ~analysis_data.at(\centroid).at(\frame_duration),
+			\posLectura, time_pos * ~analysis_data.at(feature).at(\sample_rate).asInteger,
+			\velocidad, 1,
+			\dur, ~analysis_data.at(feature).at(\frame_duration).asFloat,
 			\pan, 0])
 		}, "/data").add;
 
@@ -77,24 +79,22 @@ s.waitForBoot{
 	}
 )
 
-
 ~python_address.sendMsg("/audio_paths")
-~python_address.sendMsg("/data", "centroid", 5500);
+~python_address.sendMsg("/data", "centroid", 3500);
 
-s.boot
 (
 	Routine({
-		10.do({ arg i;
+		1000.do({ arg i;
 			var feature, valor;
-			feature = ["centroid", "flatness"].choose;
+			feature = ["centroid"].choose;
 			feature.postln;
 			if(feature == "centroid",{
-				valor = rrand(2000,6000);
+				valor = rrand(2900,4000);
 			}, {
-				valor = rrand(0.00, 1.0);
+				valor = rrand(0.75, 1.0);
 			});
 			~python_address.sendMsg("/data", feature, valor);
-			1.wait;
+			0.01.wait;
 		});
 	}).play
 )
