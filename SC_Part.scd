@@ -34,7 +34,7 @@ s.waitForBoot{
 		~buffers = Dictionary.new;
 		paths.collect({arg path; ~buffers.put(path, Buffer.readChannel(s, path, channels:[0]))});
 		};
-	s.sync;	
+	s.sync;
 
 	SynthDef(\granulator,{
 		arg bufnum=1, posLectura=0, velocidad = 1, dur=1, pan=0;
@@ -76,11 +76,23 @@ s.waitForBoot{
 		~loadBuffers.(paths);
 		}, "/audio_paths").add;
 
+
+
+	OSCdef.free(\processing_listener);
+	OSCdef(\processing_listener, {
+		arg msg;
+		msg.postln
+		}, "/processing_listener").add;
 	}
 )
 
+
 ~python_address.sendMsg("/audio_paths")
 ~python_address.sendMsg("/data", "centroid", 3500);
+
+
+
+//RUTINES
 
 (
 	Routine({
@@ -98,6 +110,29 @@ s.waitForBoot{
 		});
 	}).play
 )
+
+
+(
+	Routine({
+		1000.do({
+			~processing_address.sendMsg("/test", rrand(0, 255), rrand(0, 255));
+			0.1.wait;
+		});
+	}).play
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
