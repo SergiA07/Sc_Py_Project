@@ -4,5 +4,5 @@ __pycache__/
 proves.py
 sounds/*
 features/
-p5js-osc/
+
 /config/osc_config.json
