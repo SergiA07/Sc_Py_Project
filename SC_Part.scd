@@ -1,10 +1,10 @@
-NetAddr.localAddr
-
+NetAddr.localAddr //TODO: que sempre sigui 57120
+s.quit
 (
 ServerQuit.removeAll;
 ServerBoot.removeAll;
 ServerTree.removeAll;
-Buffer.freeAll;
+Buffer.freeAll(s);
 
 ~currentPath = PathName(thisProcess.nowExecutingPath).parentPath;
 ~osc_config = (~currentPath ++ "config/osc_config.json").parseYAMLFile;
@@ -31,6 +31,9 @@ s.options.blockSize = ~server_config["blockSize"].asInteger;
 s.waitForBoot{
 	~loadBuffers = {
 		arg paths;
+		Buffer.freeAll(s);//TODO: netejar buffers de la RAM cada vega que executem aquest codi
+
+		//s.cachedBuffersDo{arg buf; buf.free};
 		~buffers = Dictionary.new;
 		paths.collect({arg path; ~buffers.put(path, Buffer.readChannel(s, path, channels:[0]))});
 		};
@@ -83,11 +86,15 @@ s.waitForBoot{
 		arg msg;
 		msg.postln
 		}, "/processing_listener").add;
+
+	s.sync;
+
+	~python_address.sendMsg("/audio_paths")
 	}
 )
 
 
-~python_address.sendMsg("/audio_paths")
+
 ~python_address.sendMsg("/data", "centroid", 3500);
 
 
@@ -96,17 +103,19 @@ s.waitForBoot{
 
 (
 	Routine({
-		1000.do({ arg i;
+		10000.do({ arg i;
 			var feature, valor;
 			feature = ["centroid"].choose;
 			feature.postln;
 			if(feature == "centroid",{
-				valor = rrand(2900,4000);
+				//valor = rrand(3800,4000);
+				valor = i + 2000;
+				valor.postln;
 			}, {
 				valor = rrand(0.75, 1.0);
 			});
 			~python_address.sendMsg("/data", feature, valor);
-			0.01.wait;
+			rrand(0.001,0.1).wait;
 		});
 	}).play
 )
@@ -122,6 +131,9 @@ s.waitForBoot{
 )
 
 
+Buffer.freeAll(s)
+s.cachedBuffersDo(s,{arg buffer; buffer.postln});
+3.do{s.cachedBuffersDo{arg buf; buf.free}}
 
 
 
@@ -146,6 +158,7 @@ s.waitForBoot{
 
 
 
+~buffers.at("/Users/Sergi/Documents/SuperCollider/Proyectos/Lluis/Python_SC_Pde/sounds/Baloon_Large_31.wav").play
 
 
 
@@ -196,3 +209,27 @@ Pbindef(\bomboProcessing,
 			posCercle = event[\pan].linlin(-0.75, 0.75, 100, 500).asInteger;
 			~processing.sendMsg("/", posCercle, 180, ampCercle, ampCercle);
 			}));
+
+Pbindef.freeAll
+
+Pbindef(\prova_python,
+		//\instrument, \default,
+		//\search, Pfunc({
+		//	var feature, valor;
+
+		//}
+
+		\dur, Pseq([0.5, 0.25, 025], inf) / 2,
+		\hola, Pwhite(0.1, 1).trace
+		//\pfunc, Ptime.new,
+		//\amp, Pwhite(0.25, 1, inf),
+		//\pan, Pwhite(-0.75, 0.75, inf),
+		\prova, Pfunc({
+			//arg event;
+			//var ampCercle, posCercle;
+			//ampCercle = event[\amp].linlin(0.25, 1, 25, 150).asInteger;
+			//posCercle = event[\pan].linlin(-0.75, 0.75, 100, 500).asInteger;
+			~python_address.sendMsg("/data", "centroid", rrand(3000, 4000));
+			}));
+
+Pbindef(\prova_python).play

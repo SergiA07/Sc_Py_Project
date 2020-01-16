@@ -20,12 +20,11 @@ OSC_CONFIG_FILEPATH = join(getcwd(),'config/osc_config.json')
 def receive_send_data(address, *args):
     feature = args[0]
     valor = args[1]
-    frame_path, frame_time = analisis.get_closest_frame(feature, valor)
+    frame_path, frame_time = analisis.get_closest_frame(feature, valor) #TODO: get_closest_frame torna frame_path, start_sample, frame_dur
     sc_client.send_message("/data", [frame_path, frame_time, feature])
 
 def handle_audio_paths_request(address, *args):
     audio_full_paths, _ = analisis.valid_tracks_fullpaths()
-    print(audio_full_paths)
     sc_client.send_message("/audio_paths", audio_full_paths)
 
 
@@ -48,4 +47,8 @@ if __name__ == "__main__":
         (osc_config["python"]["ip"], osc_config["python"]["port"]),
          dispatcher)
     print("Serving on {}".format(server.server_address))
+
+    audio_full_paths, _ = analisis.valid_tracks_fullpaths()
+    sc_client.send_message("/audio_paths", audio_full_paths)
+
     server.serve_forever()
