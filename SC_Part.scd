@@ -1,4 +1,5 @@
 NetAddr.localAddr //TODO: que sempre sigui 57120
+Server.killAll
 s.quit
 (
 ServerQuit.removeAll;
@@ -8,20 +9,10 @@ Buffer.freeAll(s);
 
 ~currentPath = PathName(thisProcess.nowExecutingPath).parentPath;
 ~osc_config = (~currentPath ++ "config/osc_config.json").parseYAMLFile;
-~analysis_config = (~currentPath ++ "config/analysis_config.json").parseYAMLFile;
 ~server_config = (~currentPath ++ "config/server_config.json").parseYAMLFile;
 ~sc_address = NetAddr(~osc_config["supercollider"]["ip"], ~osc_config["supercollider"]["port"].asInteger);
 ~processing_address = NetAddr(~osc_config["processing"]["ip"], ~osc_config["processing"]["port"].asInteger);
 ~python_address = NetAddr(~osc_config["python"]["ip"], ~osc_config["python"]["port"].asInteger);
-
-~analysis_data = Dictionary.new;
-~analysis_config.keys.asArray.collect({
-	arg feature;
-	~analysis_data.add(feature.asSymbol -> (fft_size:~analysis_config[feature]["fft_size"],
-	 hop_size:~analysis_config[feature]["hop_size"],
-	 sample_rate:~analysis_config[feature]["sample_rate"],
-	 frame_duration:(~analysis_config[feature]["fft_size"]).asFloat/(~analysis_config[feature]["sample_rate"]).asFloat))
-	});
 
 s.options.sampleRate = ~server_config["sampleRate"].asInteger;
 s.latency = ~server_config["latency"].asFloat;
@@ -54,17 +45,18 @@ s.waitForBoot{
 	OSCdef.free(\sc_data_listener);
 	OSCdef(\sc_data_listener, {
 		arg msg;
-		var path, time_pos, feature;
+		var path, start_sample, frame_dur, feature;
 
 		path = msg[1];
-		time_pos = msg[2];
-		feature = msg[3];
+		start_sample = msg[2].asInteger;
+		frame_dur = msg[3].asFloat;
+		feature = msg[4];
 
 		Synth(\granulator,[
 			\bufnum, ~buffers.at(path),
-			\posLectura, time_pos * ~analysis_data.at(feature).at(\sample_rate).asInteger,
+			\posLectura, start_sample,
 			\velocidad, 1,
-			\dur, ~analysis_data.at(feature).at(\frame_duration).asFloat,
+			\dur, frame_dur,
 			\pan, 0])
 		}, "/data").add;
 
@@ -95,9 +87,8 @@ s.waitForBoot{
 
 
 
-~python_address.sendMsg("/data", "centroid", 3500);
-
-
+~python_address.sendMsg("/data", "centroid", 2700);
+~python_address.sendMsg("/data", "flatness", 0.9);
 
 //RUTINES
 
@@ -115,7 +106,7 @@ s.waitForBoot{
 				valor = rrand(0.75, 1.0);
 			});
 			~python_address.sendMsg("/data", feature, valor);
-			rrand(0.001,0.1).wait;
+			rrand(0.001,0.001).wait;
 		});
 	}).play
 )

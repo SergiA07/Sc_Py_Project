@@ -47,13 +47,16 @@ class FeatureAnalyser:
                 print('invalid format for ', path, ' ,only wav or aiff')
         return valid_tracks_fullpaths, tracks_names
 
-    def add_to_features_dict(self, feature_dict, track_path, feature_values, time_pos):
+    def add_to_features_dict(self, feature_dict, track_path, feature_values, time_pos, fft_size, hop_size, sample_rate):
         for feature_val, time in zip(feature_values, time_pos):
             if feature_val in feature_dict:
                 print('repeated value for ', track_path)
             feature_dict[feature_val] = {
                 "path": track_path,
-                "time_pos": time
+                "time_pos": time,
+                "fft_size": fft_size,
+                "hop_size": hop_size,
+                "sample_rate": sample_rate
             }
 
     def compute_feature_dictionaries(self):
@@ -68,7 +71,11 @@ class FeatureAnalyser:
 
         for track_path, track_name in zip(valid_tracks, tracks_names):
             for feature_name, feature_config_analisis in config_analysis.items():
-                feature_folder = join(FEATURES_FILEPATH, feature_name)
+
+                fft_size, hop_size, sample_rate = itemgetter("fft_size", "hop_size", "sample_rate")(feature_config_analisis)
+                feature_folder = join(FEATURES_FILEPATH, feature_name + '_' + str(fft_size) + '_' + str(hop_size) + '_' + str(sample_rate))
+                #feature_folder = join(FEATURES_FILEPATH, feature_name)
+
                 feature_analisis_json = join(
                     feature_folder, track_name + '.json')
 
@@ -88,7 +95,10 @@ class FeatureAnalyser:
                     features_dict[feature_name],
                     track_path,
                     feature_analisis,
-                    time_pos
+                    time_pos,
+                    fft_size,
+                    hop_size,
+                    sample_rate
                 )
         return features_dict
 
@@ -121,7 +131,8 @@ class FeatureAnalyser:
         feature_analisis = function(audio, sr, fft_size, hop_size)
         time_pos = get_frame_time_positions(feature_analisis, sr, hop_size)
 
-        feature_folder = join(FEATURES_FILEPATH, feature_name)
+        feature_folder = join(FEATURES_FILEPATH, feature_name + '_' + str(fft_size) + '_' + str(hop_size) + '_' + str(sample_rate))
+        #feature_folder = join(FEATURES_FILEPATH, feature_name)
         if not os.path.exists(feature_folder):
             os.makedirs(feature_folder)
         with open(json_to_save_name, 'w') as f:
@@ -151,4 +162,9 @@ class FeatureAnalyser:
         closest_frame, _ = closest(keys, target_value)
         path = features_dict[closest_frame]["path"]
         time_pos = features_dict[closest_frame]["time_pos"]
-        return path, time_pos
+        start_sample = time_pos * features_dict[closest_frame]["sample_rate"]
+        frame_dur = features_dict[closest_frame]["fft_size"] /features_dict[closest_frame]["sample_rate"]
+        print(path)
+        print(start_sample)
+        print(frame_dur)
+        return path, start_sample, frame_dur

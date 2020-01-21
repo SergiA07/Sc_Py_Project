@@ -20,8 +20,8 @@ OSC_CONFIG_FILEPATH = join(getcwd(),'config/osc_config.json')
 def receive_send_data(address, *args):
     feature = args[0]
     valor = args[1]
-    frame_path, frame_time = analisis.get_closest_frame(feature, valor) #TODO: get_closest_frame torna frame_path, start_sample, frame_dur
-    sc_client.send_message("/data", [frame_path, frame_time, feature])
+    frame_path, frame_start_sample, frame_dur = analisis.get_closest_frame(feature, valor)
+    sc_client.send_message("/data", [frame_path, frame_start_sample, frame_dur, feature])
 
 def handle_audio_paths_request(address, *args):
     audio_full_paths, _ = analisis.valid_tracks_fullpaths()
