@@ -38,6 +38,10 @@ if __name__ == "__main__":
         osc_config["supercollider"]["ip"],
         osc_config["supercollider"]["port"])
 
+    processing_client = udp_client.SimpleUDPClient(
+        osc_config["processing"]["ip"],
+        osc_config["processing"]["port"])
+
 
     dispatcher = dispatcher.Dispatcher()
     dispatcher.map("/data", receive_send_data)
@@ -47,6 +51,8 @@ if __name__ == "__main__":
         (osc_config["python"]["ip"], osc_config["python"]["port"]),
          dispatcher)
     print("Serving on {}".format(server.server_address))
+
+    processing_client.send_message("/test", analisis.send_features_info()) #message too long
 
     audio_full_paths, _ = analisis.valid_tracks_fullpaths()
     sc_client.send_message("/audio_paths", audio_full_paths)

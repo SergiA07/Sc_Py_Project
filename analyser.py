@@ -164,7 +164,19 @@ class FeatureAnalyser:
         time_pos = features_dict[closest_frame]["time_pos"]
         start_sample = time_pos * features_dict[closest_frame]["sample_rate"]
         frame_dur = features_dict[closest_frame]["fft_size"] /features_dict[closest_frame]["sample_rate"]
-        print(path)
-        print(start_sample)
-        print(frame_dur)
         return path, start_sample, frame_dur
+
+
+    def send_features_info(self):
+        with open(CONFIG_ANALYSIS_PATH) as f:
+            config_analysis = json.load(f)
+
+        data = []
+        for feature_name in config_analysis.keys():
+            feature_dict = self.features_dict[feature_name]
+            values = list(feature_dict.keys())
+            feature_list = []
+            feature_list.append(feature_name)
+            feature_list.append(values)
+            data.append(feature_list)
+        return data[1][1][2] #problema diu meesage too long
