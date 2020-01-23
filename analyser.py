@@ -167,7 +167,19 @@ class FeatureAnalyser:
         return path, start_sample, frame_dur
 
 
-    def send_features_info(self):
+    def send_features_info(self,sublists_size):
+        def slice_maker(array, tamany): # per fer paquets del tamany que volguem per poder enviar-ho per osc
+            out = []
+            index = 0
+            inc = len(array)%tamany
+            cops = int(len(array)/tamany)
+            if inc != 0:
+                cops = cops + 1
+            for x in range(cops):
+               out.append(array[index:index + tamany])
+               index += tamany
+            return out
+
         with open(CONFIG_ANALYSIS_PATH) as f:
             config_analysis = json.load(f)
 
@@ -175,8 +187,9 @@ class FeatureAnalyser:
         for feature_name in config_analysis.keys():
             feature_dict = self.features_dict[feature_name]
             values = list(feature_dict.keys())
+            values = slice_maker(values, sublists_size)
             feature_list = []
             feature_list.append(feature_name)
             feature_list.append(values)
             data.append(feature_list)
-        return data[1][1][2] #problema diu meesage too long
+        return data

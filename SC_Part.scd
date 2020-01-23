@@ -72,6 +72,13 @@ s.waitForBoot{
 		}, "/audio_paths").add;
 
 
+	OSCdef.free(\sc_test_listener);
+	OSCdef(\sc_test_listener, {
+		arg msg;
+		msg.postln
+		}, "/test").add;
+
+
 
 	OSCdef.free(\processing_listener);
 	OSCdef(\processing_listener, {

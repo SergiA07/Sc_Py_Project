@@ -52,7 +52,12 @@ if __name__ == "__main__":
          dispatcher)
     print("Serving on {}".format(server.server_address))
 
-    processing_client.send_message("/test", analisis.send_features_info()) #message too long
+
+    features_info = analisis.send_features_info(sublists_size=64)
+    features_info = features_info[0][1]
+    for x in features_info:
+        processing_client.send_message("/test", x)
+
 
     audio_full_paths, _ = analisis.valid_tracks_fullpaths()
     sc_client.send_message("/audio_paths", audio_full_paths)
