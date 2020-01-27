@@ -54,10 +54,13 @@ class FeatureAnalyser:
             feature_dict[feature_val] = {
                 "path": track_path,
                 "time_pos": time,
-                "fft_size": fft_size,
-                "hop_size": hop_size,
-                "sample_rate": sample_rate
+                #"fft_size": fft_size,
+                #"hop_size": hop_size,
+                #"sample_rate": sample_rate
             }
+        feature_dict["fft_size"] = fft_size
+        feature_dict["hop_size"] = hop_size
+        feature_dict["sample_rate"] = sample_rate
 
     def compute_feature_dictionaries(self):
         with open(CONFIG_ANALYSIS_PATH) as f:
@@ -162,8 +165,10 @@ class FeatureAnalyser:
         closest_frame, _ = closest(keys, target_value)
         path = features_dict[closest_frame]["path"]
         time_pos = features_dict[closest_frame]["time_pos"]
-        start_sample = time_pos * features_dict[closest_frame]["sample_rate"]
-        frame_dur = features_dict[closest_frame]["fft_size"] /features_dict[closest_frame]["sample_rate"]
+        #start_sample = time_pos * features_dict[closest_frame]["sample_rate"]
+        start_sample = time_pos * features_dict["sample_rate"]
+        #frame_dur = features_dict[closest_frame]["fft_size"] /features_dict[closest_frame]["sample_rate"]
+        frame_dur = features_dict["fft_size"] /features_dict["sample_rate"]
         return path, start_sample, frame_dur
 
 

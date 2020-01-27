@@ -53,10 +53,17 @@ if __name__ == "__main__":
     print("Serving on {}".format(server.server_address))
 
 
-    features_info = analisis.send_features_info(sublists_size=64)
-    features_info = features_info[0][1]
-    for x in features_info:
-        processing_client.send_message("/test", x)
+    features_info = analisis.send_features_info(sublists_size=8)
+    for index in range(len(features_info)):
+        for index2, elem in enumerate(features_info[index]):
+            if index2 != 0:
+                for array in elem:
+                    print(array)
+                    print("")
+            else:
+                print(elem)
+                print("")
+    #processing_client.send_message("/test", x)
 
 
     audio_full_paths, _ = analisis.valid_tracks_fullpaths()
