@@ -52,6 +52,8 @@ if __name__ == "__main__":
          dispatcher)
     print("Serving on {}".format(server.server_address))
 
+    print(analisis.features_dict)
+
 
     #features_info = analisis.send_features_info(sublists_size=8)
     #for index in range(len(features_info)):

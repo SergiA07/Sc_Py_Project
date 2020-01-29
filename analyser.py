@@ -48,18 +48,16 @@ class FeatureAnalyser:
         return valid_tracks_fullpaths, tracks_names
 
     def add_to_features_dict(self, feature_dict, track_path, feature_values, time_pos, fft_size, hop_size, sample_rate):
-        by_values = {}
         for feature_val, time in zip(feature_values, time_pos):
-            if feature_val in by_values:
+            if feature_val in feature_dict["by_values"]:
                 print('repeated value for ', track_path)
-            by_values[feature_val] = {
+            feature_dict["by_values"][feature_val] = {
                 "path": track_path,
                 "time_pos": time,
                 #"fft_size": fft_size,
                 #"hop_size": hop_size,
                 #"sample_rate": sample_rate
             }
-        feature_dict["by_values"] = by_values
         feature_dict["fft_size"] = fft_size
         feature_dict["hop_size"] = hop_size
         feature_dict["sample_rate"] = sample_rate
@@ -70,7 +68,7 @@ class FeatureAnalyser:
 
         features_dict = {}
         for feature_name in config_analysis.keys():
-            features_dict[feature_name] = {}
+            features_dict[feature_name] = {"by_values":{}}
 
         valid_tracks, tracks_names = self.valid_tracks_fullpaths()
 
