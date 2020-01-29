@@ -51,6 +51,7 @@ s.waitForBoot{
 		start_sample = msg[2].asInteger;
 		frame_dur = msg[3].asFloat;
 		feature = msg[4];
+		[path, start_sample, frame_dur, feature].postln;
 
 		Synth(\granulator,[
 			\bufnum, ~buffers.at(path),
@@ -94,11 +95,11 @@ s.waitForBoot{
 
 
 
-~python_address.sendMsg("/data", "centroid", 2700);
+~python_address.sendMsg("/data", "centroid", 1700);
 ~python_address.sendMsg("/data", "flatness", 0.9);
 
 //RUTINES
-
+{SinOsc.ar}.play
 (
 	Routine({
 		10000.do({ arg i;
@@ -107,13 +108,13 @@ s.waitForBoot{
 			feature.postln;
 			if(feature == "centroid",{
 				//valor = rrand(3800,4000);
-				valor = i + 2000;
+				valor = i + 4000;
 				valor.postln;
 			}, {
 				valor = rrand(0.75, 1.0);
 			});
 			~python_address.sendMsg("/data", feature, valor);
-			rrand(0.001,0.001).wait;
+			rrand(0.1,0.1).wait;
 		});
 	}).play
 )

@@ -48,16 +48,18 @@ class FeatureAnalyser:
         return valid_tracks_fullpaths, tracks_names
 
     def add_to_features_dict(self, feature_dict, track_path, feature_values, time_pos, fft_size, hop_size, sample_rate):
+        by_values = {}
         for feature_val, time in zip(feature_values, time_pos):
-            if feature_val in feature_dict:
+            if feature_val in by_values:
                 print('repeated value for ', track_path)
-            feature_dict[feature_val] = {
+            by_values[feature_val] = {
                 "path": track_path,
                 "time_pos": time,
                 #"fft_size": fft_size,
                 #"hop_size": hop_size,
                 #"sample_rate": sample_rate
             }
+        feature_dict["by_values"] = by_values
         feature_dict["fft_size"] = fft_size
         feature_dict["hop_size"] = hop_size
         feature_dict["sample_rate"] = sample_rate
@@ -161,10 +163,11 @@ class FeatureAnalyser:
             index_closest_key = (np.abs(keys - target_value)).argmin()
             return keys[index_closest_key], index_closest_key
         features_dict = self.features_dict[feature_name]
-        keys = [*features_dict]
+        features_dict_by_values = features_dict["by_values"]
+        keys = [*features_dict_by_values]
         closest_frame, _ = closest(keys, target_value)
-        path = features_dict[closest_frame]["path"]
-        time_pos = features_dict[closest_frame]["time_pos"]
+        path = features_dict_by_values[closest_frame]["path"]
+        time_pos = features_dict_by_values[closest_frame]["time_pos"]
         #start_sample = time_pos * features_dict[closest_frame]["sample_rate"]
         start_sample = time_pos * features_dict["sample_rate"]
         #frame_dur = features_dict[closest_frame]["fft_size"] /features_dict[closest_frame]["sample_rate"]

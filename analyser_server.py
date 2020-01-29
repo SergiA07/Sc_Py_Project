@@ -53,16 +53,16 @@ if __name__ == "__main__":
     print("Serving on {}".format(server.server_address))
 
 
-    features_info = analisis.send_features_info(sublists_size=8)
-    for index in range(len(features_info)):
-        for index2, elem in enumerate(features_info[index]):
-            if index2 != 0:
-                for array in elem:
-                    print(array)
-                    print("")
-            else:
-                print(elem)
-                print("")
+    #features_info = analisis.send_features_info(sublists_size=8)
+    #for index in range(len(features_info)):
+    #    for index2, elem in enumerate(features_info[index]):
+    #        if index2 != 0:
+    #            for array in elem:
+    #                print(array)
+    #                print("")
+    #        else:
+    #            print(elem)
+    #            print("")
     #processing_client.send_message("/test", x)
 
 
