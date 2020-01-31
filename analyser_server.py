@@ -6,6 +6,7 @@ import random
 import time
 import json
 from analyser import FeatureAnalyser
+from analyser_REST_server import REST_server
 
 from pythonosc import udp_client
 
@@ -33,6 +34,9 @@ def handle_audio_paths_request(address, *args):
 
 if __name__ == "__main__":
     analisis = FeatureAnalyser()
+    rest_server = REST_server(analisis)
+
+    print("hola")
 
     with open(OSC_CONFIG_FILEPATH) as json_file:
         osc_config = json.load(json_file)

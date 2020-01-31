@@ -159,9 +159,7 @@ class FeatureAnalyser:
         closest_frame, _ = closest(keys, target_value)
         path = features_dict_by_values[closest_frame]["path"]
         time_pos = features_dict_by_values[closest_frame]["time_pos"]
-        # start_sample = time_pos * features_dict[closest_frame]["sample_rate"]
         start_sample = time_pos * features_dict["sample_rate"]
-        # frame_dur = features_dict[closest_frame]["fft_size"] /features_dict[closest_frame]["sample_rate"]
         frame_dur = features_dict["fft_size"] / features_dict["sample_rate"]
         return path, start_sample, frame_dur
 
