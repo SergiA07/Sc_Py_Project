@@ -1,6 +1,8 @@
+# Two servers are created on at the same time with multi-threading!
 import socket
 import time
 import threading
+
 
 def Main1():
     print("1")
@@ -23,10 +25,12 @@ def Main1():
         data = str(data).upper()
         print("Received from User: " + str(data))
 
-        data = input(" ? ")
-        conn.send(data.encode())
+        # data = input(" ? ")
+        response_to_client = "hi this is server1 echo: I received " + str(data)
+        conn.send(response_to_client.encode())
 
     conn.close()
+
 
 def Main2():
     print("2")
@@ -49,13 +53,16 @@ def Main2():
         data = str(data).upper()
         print("Received from User: " + str(data))
 
-        data = input(" ? ")
-        conn.send(data.encode())
+        # data = input(" ? ")
+        response_to_client = "hi this is server2 echo: I received " + str(data)
+        conn.send(response_to_client.encode())
 
     conn.close()
 
+
 if __name__ == '__main__':
-    t1 = threading.Thread(target = Main1())
-    t2 = threading.Thread(target = Main2())
+    t1 = threading.Thread(target=Main1)
+    t2 = threading.Thread(target=Main2)
     t1.start()
     t2.start()
+    print("done")
