@@ -2,6 +2,7 @@
 import time
 from flask import Flask, request
 from flask_restful import Resource, Api
+from flask_cors import CORS
 from json import dumps
 from flask_jsonpify import jsonify
 
@@ -18,6 +19,7 @@ class Analysis(Resource):
 class server_REST:
     def __init__(self, analysis):
         app = Flask(__name__)
+        CORS(app)
         api = Api(app)
         api.add_resource(Analysis, '/analysis',
                          resource_class_kwargs={'analysis': analysis})

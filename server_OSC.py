@@ -1,7 +1,6 @@
 from os import getcwd
 from os.path import join
 import json
-from analyser import FeatureAnalyser
 
 from pythonosc import udp_client
 from pythonosc import dispatcher
@@ -14,7 +13,6 @@ OSC_CONFIG_FILEPATH = join(getcwd(), 'config/osc_config.json')
 
 class server_OSC:
     def receive_send_data(self, address, *args):
-        print("hey")
         feature = args[0]
         valor = args[1]
         frame_path, frame_start_sample, frame_dur = self.analysis.get_closest_frame(

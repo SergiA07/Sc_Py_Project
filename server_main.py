@@ -24,7 +24,7 @@ if __name__ == "__main__":
     # Create server threads
     test_analysis_for_REST = {"keytest": 1234}
     thread1 = serverThread(
-        server_REST, test_analysis_for_REST, "Thread-REST-server")
+        server_REST, analysis.features_dict, "Thread-REST-server")
     thread2 = serverThread(server_OSC, analysis, "Thread-OSC-server")
 
     # Start new Threads
