@@ -136,9 +136,7 @@ s.cachedBuffersDo(s,{arg buffer; buffer.postln});
 
 
 
-
-
-
+~processing_address.sendMsg("/test", 222111); //test
 
 
 

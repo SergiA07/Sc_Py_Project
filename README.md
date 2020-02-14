@@ -1,7 +1,9 @@
-Sc_Py-Sergi-Lluis
-===
+# Sc_Py-Sergi-Lluis
 
-One paragraph of project description goes here
+Many things involved here. To start:
+
+- `python3 server_main.py`
+- `cd analyser-ui-p5 && npm start`
 
 ---
 
@@ -14,6 +16,7 @@ These instructions will get you a copy of the project up and running on your loc
 We will need **Python3** to run the code and **pip3** to install required libraries
 
 > for Ubuntu:
+
 ```
 $ sudo apt install -y python3 python3-pip
 ```
@@ -21,6 +24,7 @@ $ sudo apt install -y python3 python3-pip
 Install Supercollider
 
 > for Ubuntu:
+
 ```
 $ sudo apt install -y supercollider
 ```
@@ -40,19 +44,21 @@ $ cd Sc_Py-Sergi-Lluis
 Use the package manager **pip** to install virtualenv and virtualenvwrapper (_pip_ or _pip3_, both are fine)
 
 > for Ubuntu:
+
 ```
 $ pip install virtualenv virtualenvwrapper
 ```
 
 ### Shell Startup File
 
-Add three lines to your shell startup file (.bashrc, .profile, etc.) to set: 
-  
-  * The location where the virtual environments should live.
-  * The location of your development project directories -- Adjust to your needs
-  * And the location of the script installed with virtualenvwrapper package
+Add three lines to your shell startup file (.bashrc, .profile, etc.) to set:
+
+- The location where the virtual environments should live.
+- The location of your development project directories -- Adjust to your needs
+- And the location of the script installed with virtualenvwrapper package
 
 > For Ubuntu:
+
 ```
 $ export WORKON_HOME=$HOME/.virtualenvs
 $ export PROJECT_HOME=$HOME/Workspace
@@ -63,11 +69,12 @@ $ source /usr/local/bin/virtualenvwrapper.sh
 
 Using the **mkvirtualenv** tool provided by **virtualenvwrapper** create a new virtual environment:
 
-  * Link this _venv_ to the project with the -a flag
-  * Install dependencies by referencing the _requirements.txt_ file contained in the project
-  * Set the Python interpreter version
-  
+- Link this _venv_ to the project with the -a flag
+- Install dependencies by referencing the _requirements.txt_ file contained in the project
+- Set the Python interpreter version
+
 > For Ubuntu:
+
 ```
 $ mkvirtualenv --help
 Usage: mkvirtualenv [-a project_path] [-i package] [-r requirements_file] [virtualenv options] env_name
