@@ -136,7 +136,23 @@ s.cachedBuffersDo(s,{arg buffer; buffer.postln});
 
 
 
+
+
+
+
+//TEST OSC p5
+OSCdef.free(\processing_test);
+(
+OSCdef(\processing_test, {
+	arg msg;
+	msg.postln
+	}, "/test").add;
+)
+s.sync;
+
 ~processing_address.sendMsg("", 222111); //test
+
+~sc_address.sendMsg("/test", 333333); //test SC
 
 
 

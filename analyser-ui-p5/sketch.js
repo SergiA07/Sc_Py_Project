@@ -1,4 +1,3 @@
-let oscPort;
 let dictionary;
 let maxCentroid;
 let minCentroid;
@@ -31,10 +30,18 @@ function createCentroidDataPoints(dictionary) {
   }
 }
 
+function sendTestOSCtoSC() {
+  console.log("sending OSC");
+  sendOsc("/testSC", "hello Supercollider");
+}
+
 function setup() {
+  button = createButton("test send OSC SC");
+  button.position(0, 0);
+  button.mousePressed(sendTestOSCtoSC);
   createCanvas(1000, 800);
   setupOsc(13000, 57120); //TODO: take from config.json
-  loadJSON("http://127.0.0.1:5002/analysis", gotData);
+  loadJSON("http://127.0.0.1:5002/analysis", gotData); // TODO: The route is hardcoded, should have these constants in config
 }
 
 function draw() {
@@ -76,22 +83,24 @@ class DataPoint {
 }
 
 //----  OSC -------
+// TODO: Maybe wrap all this code in a class like OSCManager
+let socket;
+
 function receiveOsc(address, value) {
   console.log("received OSC: " + address + ", " + value);
-
   if (address == "/test") {
     x = value[0];
     y = value[1];
   }
 }
 
-function sendOsc(address, value) {
-  socket.emit("message", [address].concat(value));
+function sendOsc(address = "/testSC", value = "testValue") {
+  socket.emit("sendOSC", address, value);
 }
 
 function setupOsc(oscPortIn, oscPortOut) {
   console.log("setup OSC...");
-  var socket = io.connect("http://127.0.0.1:8081", {
+  socket = io.connect("http://127.0.0.1:8081", {
     port: 8081,
     rememberTransport: false
   });
@@ -111,4 +120,5 @@ function setupOsc(oscPortIn, oscPortOut) {
       receiveOsc(msg[0], msg.splice(1));
     }
   });
+  _socket = socket;
 }

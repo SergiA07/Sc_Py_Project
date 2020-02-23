@@ -2,6 +2,8 @@
 
 Many things involved here. To start:
 
+`cd analyser-ui-p5 && npm install` for dependencies
+
 - `python3 server_main.py`
 - `cd analyser-ui-p5 && npm start`
 
