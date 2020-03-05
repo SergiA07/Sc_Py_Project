@@ -16,7 +16,8 @@ function gotData(data) {
 }
 
 function createCentroidDataPoints(dictionary) {
-  numbersOnly = Object.keys(dictionary.centroid.by_values);
+  featureName = "centroid"
+  numbersOnly = Object.keys(dictionary[featureName].by_values);
   minCentroid = min(numbersOnly);
   maxCentroid = max(numbersOnly);
   for (i = 0; i < numbersOnly.length; i++) {
@@ -25,20 +26,21 @@ function createCentroidDataPoints(dictionary) {
     let y = 100;
     let r = 16;
     let col = color(255, 0, 0, 10);
-    let c = new DataPoint(x, y, r, col);
+    let data = dictionary[featureName].by_values[data_value];
+    let sendDataToSC = () => {
+        console.log(data);
+        sendOsc("/testSC", data);
+    }
+    let c = new DataPoint(x, y, r, col, sendDataToSC);
     centroid_data_points.push(c);
   }
 }
 
-function sendTestOSCtoSC() {
-  console.log("sending OSC");
-  sendOsc("/testSC", "hello Supercollider");
-}
 
 function setup() {
   button = createButton("test send OSC SC");
   button.position(0, 0);
-  button.mousePressed(sendTestOSCtoSC);
+  button.mousePressed(()=> sendOsc("/testSC", "hello Supercollider"));
   createCanvas(1000, 800);
   setupOsc(13000, 57120); //TODO: take from config.json
   loadJSON("http://127.0.0.1:5002/analysis", gotData); // TODO: The route is hardcoded, should have these constants in config
@@ -57,10 +59,11 @@ function draw() {
 }
 
 class DataPoint {
-  constructor(x, y, r, c) {
+  constructor(x, y, r, c, onHoveredCb) {
     this.x = x;
     this.y = y;
     this.r = r;
+    this.onHoveredCb = onHoveredCb;
     this.defaultColor = c;
     this.currentColor = this.defaultColor;
     this.hoveredColor = color(0, 255, 0, 10);
@@ -70,6 +73,7 @@ class DataPoint {
     let d = dist(px, py, this.x, this.y);
     if (d < this.r) {
       this.currentColor = this.hoveredColor;
+      this.onHoveredCb();
     } else {
       this.currentColor = this.defaultColor;
     }
