@@ -16,7 +16,7 @@ function gotData(data) {
 }
 
 function createCentroidDataPoints(dictionary) {
-  featureName = "centroid"
+  featureName = "centroid";
   numbersOnly = Object.keys(dictionary[featureName].by_values);
   minCentroid = min(numbersOnly);
   maxCentroid = max(numbersOnly);
@@ -28,19 +28,18 @@ function createCentroidDataPoints(dictionary) {
     let col = color(255, 0, 0, 10);
     let data = dictionary[featureName].by_values[data_value];
     let sendDataToSC = () => {
-        console.log(data);
-        sendOsc("/testSC", data);
-    }
+      console.log(data);
+      sendOsc("/testSC", data);
+    };
     let c = new DataPoint(x, y, r, col, sendDataToSC);
     centroid_data_points.push(c);
   }
 }
 
-
 function setup() {
   button = createButton("test send OSC SC");
   button.position(0, 0);
-  button.mousePressed(()=> sendOsc("/testSC", "hello Supercollider"));
+  button.mousePressed(() => sendOsc("/testSC", "hello Supercollider"));
   createCanvas(1000, 800);
   setupOsc(13000, 57120); //TODO: take from config.json
   loadJSON("http://127.0.0.1:5002/analysis", gotData); // TODO: The route is hardcoded, should have these constants in config

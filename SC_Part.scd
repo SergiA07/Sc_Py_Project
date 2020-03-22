@@ -77,7 +77,8 @@ s.waitForBoot{
 	OSCdef(\sc_test_listener, {
 		arg msg;
 		msg.postln
-		}, "/test").add;
+		}, "/testSC").add;
+
 
 
 
