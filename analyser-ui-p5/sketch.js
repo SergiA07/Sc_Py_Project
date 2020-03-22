@@ -26,7 +26,8 @@ function createCentroidDataPoints(dictionary) {
     let y = 100;
     let r = 16;
     let col = color(255, 0, 0, 10);
-    let data = dictionary[featureName].by_values[data_value];
+    const { path, time_pos } = dictionary[featureName].by_values[data_value];
+    let data = [path, time_pos];
     let sendDataToSC = () => {
       console.log(data);
       sendOsc("/testSC", data);
