@@ -27,10 +27,17 @@ function createCentroidDataPoints(dictionary) {
     let r = 16;
     let col = color(255, 0, 0, 10);
     const { path, time_pos } = dictionary[featureName].by_values[data_value];
-    let data = [path, time_pos];
+    const frame_dur_hardcoded = 5000; // TODO
+    const feature_name_hardcoded = "centroid"; // TODO: right now is "centroid", but it could be anything
+    let data_for_sc = [
+      path,
+      time_pos,
+      frame_dur_hardcoded,
+      feature_name_hardcoded
+    ];
     let sendDataToSC = () => {
-      console.log(data);
-      sendOsc("/testSC", data);
+      console.log(data_for_sc);
+      sendOsc("/data", data_for_sc);
     };
     let c = new DataPoint(x, y, r, col, sendDataToSC);
     centroid_data_points.push(c);
