@@ -1,30 +1,33 @@
 let dictionary;
-let maxCentroid;
-let minCentroid;
-let numbersOnly;
 let featureCounter = 0;
+let data_points = [];
+//let config;
 
-let centroid_data_points = [];
+function preload() {
+    //config = loadJSON("/Users/Sergi/Documents/SuperCollider/Proyectos/Lluis/Python_SC_Pde/config/osc_config.json");
+    setupOsc(13000, 57120); //TODO: take from config.json
+}
+
 
 function setup() {
-  button = createButton("test send OSC SC");
-  button.position(0, 0);
-  button.mousePressed(() => sendOsc("/testSC", "hello Supercollider"));
-  createCanvas(1000, 800);
-  setupOsc(13000, 57120); //TODO: take from config.json
+  createCanvas(windowWidth, windowHeight);
   loadJSON("http://127.0.0.1:5002/analysis", gotData); // TODO: The route is hardcoded, should have these constants in config
 }
 
 function draw() {
   background(0);
-  if (centroid_data_points.length > 0) {
-    //randomSeed(4);
-    background(100);
-    for (let i = 0; i < centroid_data_points.length; i++) {
-      centroid_data_points[i].show();
-      centroid_data_points[i].onHovered(mouseX, mouseY);
+  if (data_points.length > 0) {
+    background(80);
+    for (let i = 0; i < data_points.length; i++) {
+      data_points[i].show();
+      data_points[i].onHovered(mouseX, mouseY);
     }
   }
+  /*
+  button = createButton("test send OSC SC");
+  button.position(0, 0);
+  button.mousePressed(() => sendOsc("/testSC", "hello Supercollider"));
+  */
 }
 
 
@@ -32,57 +35,56 @@ function gotData(data) {
   console.log("DATA!");
   dictionary = data;
   const features = Object.keys(dictionary);
-  for(i=0; i < features.length; i++){
-      createDataPoints(dictionary, features[i]);
-      createDiv(features[i]);
-      featureCounter = featureCounter + 1;
+  for(let i=0; i < features.length; i++){
+    createDataPoints(dictionary, features[i]);
+    featureCounter = featureCounter + 1;
   }
   //createDiv(JSON.stringify(dictionary.centroid.sample_rate));
 }
 
 function createDataPoints(dictionary, feature) {
-  createDiv(typeof feature);
   featureName = feature;
-  numbersOnly = Object.keys(dictionary[featureName].by_values);
-  let feature_sampleRate = dictionary[featureName].sample_rate;
-  let feature_fftSize = dictionary[featureName].fft_size;
-  minValue = min(numbersOnly);
-  maxValue = max(numbersOnly);
-  for (i = 0; i < numbersOnly.length; i++) {
-    data_value = numbersOnly[i];
-    let x = map(data_value, minValue, maxValue, 0, width);
-    let y = 100 + (featureCounter * 200);
-    let r = 16;
-    let col = color(255, y, 0, 10);
+  featureValue = Object.keys(dictionary[featureName].by_values);
+  feature_sampleRate = dictionary[featureName].sample_rate;
+  feature_fftSize = dictionary[featureName].fft_size;
+  minValue = min(featureValue);
+  maxValue = max(featureValue);
+  for (i = 0; i < featureValue.length; i++) {
+    data_value = featureValue[i];
+    x = map(data_value, minValue, maxValue, 0, width);
+    y = 100 + (featureCounter * 100);
+    r = 12;
+    col = color(255, y, 0, 50);
     let { path, time_pos } = dictionary[featureName].by_values[data_value];
-    let start_sample = time_pos * feature_sampleRate;
-    let frame_dur = feature_fftSize / feature_sampleRate;
-    let feature_name = featureName; // TODO: right now is "centroid", but it could be anything
-    let data_for_sc = [
+    start_sample = time_pos * feature_sampleRate;
+    frame_dur = feature_fftSize / feature_sampleRate;
+    feature_name = featureName;
+    data_for_sc = [
         path,
         start_sample,
         frame_dur,
         feature_name
     ];
-    let sendDataToSC = () => {
+    sendDataToSC = () => {
       console.log(data_for_sc);
       sendOsc("/data", data_for_sc);
     };
-    let c = new DataPoint(x, y, r, col, sendDataToSC);
-    centroid_data_points.push(c);
-  }
+    valuePoint = new DataPoint(x, y, r, featureName, col, sendDataToSC);
+    data_points.push(valuePoint);
+    }
 }
 
 class DataPoint {
-  constructor(x, y, r, c, onHoveredCb) {
+  constructor(x, y, r, feature, c, onHoveredCb) {
     this.x = x;
     this.y = y;
     this.r = r;
+    this.feature = feature;
     this.onHoveredCb = onHoveredCb;
     this.defaultColor = c;
     this.currentColor = this.defaultColor;
     this.hoveredColor = color(0, 255, 0, 10);
-  }
+    }
 
   onHovered(px, py) {
     let d = dist(px, py, this.x, this.y);
@@ -100,6 +102,7 @@ class DataPoint {
     circle(this.x, this.y, this.r * 2);
   }
 }
+
 
 //----  OSC -------
 // TODO: Maybe wrap all this code in a class like OSCManager
