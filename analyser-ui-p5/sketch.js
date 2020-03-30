@@ -1,7 +1,7 @@
 let dictionary;
 let featureCounter = 0;
 let data_points = [];
-//let config;
+let angle = 0;
 
 function preload() {
     //config = loadJSON("/Users/Sergi/Documents/SuperCollider/Proyectos/Lluis/Python_SC_Pde/config/osc_config.json");
@@ -10,19 +10,54 @@ function preload() {
 
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  createCanvas(windowWidth, windowHeight/*, WEBGL*/); //WEBGL only for 3D Rendering
   loadJSON("http://127.0.0.1:5002/analysis", gotData); // TODO: The route is hardcoded, should have these constants in config
 }
 
 function draw() {
   background(0);
+
+/*
+//PROVES
+for(i= 0; i < 5; i++) {
+  x = 500 ;
+  y= 500;
+  z = 0;
+
+  //ambientLight(255);
+  pointLight(255, 255, 255, mouseX - 200, mouseY - 200, 0);
+
+  //let dx = mouseX - width/2;
+  //let dy = mouseY - height/2;
+  //let v = createVector(dx, dy, 0);
+  //v.normalize();
+  //directionalLight(255, 255, 255, v);
+
+  //normalMaterial();
+  ambientMaterial(255, i*25, 50);
+  //specularMaterial();
+
+  noStroke();
+  translate(x - width/2, y - height/2, z);
+  rotateX(angle);
+  rotateY(angle * 1);
+  rotateZ(angle * 1);
+  box(50, 50, 50);
+}
+*/
+
+//BO
+
   if (data_points.length > 0) {
     background(80);
     for (let i = 0; i < data_points.length; i++) {
+      //data_points[i].show3D();
       data_points[i].show();
       data_points[i].onHovered(mouseX, mouseY);
     }
   }
+
+  angle += 0.01;
   /*
   button = createButton("test send OSC SC");
   button.position(0, 0);
@@ -51,7 +86,7 @@ function createDataPoints(dictionary, feature) {
   maxValue = max(featureValue);
   for (i = 0; i < featureValue.length; i++) {
     data_value = featureValue[i];
-    x = map(data_value, minValue, maxValue, 0, width);
+    x = map(data_value, minValue, maxValue, 0, windowWidth);
     y = 100 + (featureCounter * 100);
     r = 12;
     col = color(255, y, 0, 50);
@@ -96,11 +131,22 @@ class DataPoint {
     }
   }
 
-  show() {
+  show3D() {
     noStroke();
     fill(this.currentColor);
-    circle(this.x, this.y, this.r * 2);
-  }
+    translate(this.x - width/2, this.y - height/2);
+    rotateX(angle);
+    rotateY(angle * 1.25);
+    rotateZ(angle * 0.75);
+    box(this.r * 2);
+ }
+
+  show() {
+    ellipseMode(CENTER);
+    noStroke();
+    fill(this.currentColor);
+    ellipse(this.x, this.y, this.r * 2, this.r * 2);
+    }
 }
 
 
